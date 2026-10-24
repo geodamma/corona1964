@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>1964北北基桃｜美軍日冕計畫中，臺灣第一批高解析度衛星影像</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--fs:11px;
+  --orange:#F37021; --orange-dark:#C85710; --orange-soft:#FFF1E6;
+  --ink:#2b2118; --panel:rgba(255,255,255,.94);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-size:var(--fs);display:flex;flex-direction:column;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:var(--ink);background:#222;overflow:hidden}
+
+header{position:relative;background:var(--orange);color:#fff;padding:10px 16px 10px 14px}
+#left{position:absolute;z-index:1000;left:12px;top:12px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;max-width:calc(100% - 80px);pointer-events:none}
+header .inner{position:relative;display:flex;align-items:center;gap:12px}
+header .logo{flex:0 0 auto;width:44px;height:44px}
+header h1{margin:0;font-size:calc(var(--fs)*1.3);letter-spacing:.06em;line-height:1.2;font-weight:900}
+header p{margin:3px 0 0;font-size:var(--fs);opacity:.95}
+
+#stage{position:relative;flex:1 1 auto;min-height:0}
+#map{position:absolute;inset:0;background:#d8d2c8}
+
+/* Control panel */
+#panel{pointer-events:auto;width:336px;background:var(--panel);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);overflow:hidden}
+#panel .head{font-size:var(--fs);display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-weight:700;color:var(--orange-dark);cursor:pointer;user-select:none}
+#panel .body{padding:2px 14px 12px}
+.row{display:flex;align-items:center;gap:8px;margin-top:2px}
+.row label{flex:0 0 8em;font-size:var(--fs);font-weight:600;white-space:nowrap;margin:0}
+.row .v{flex:0 0 2.8em;text-align:right;font-size:var(--fs);font-weight:600;color:var(--orange-dark);font-variant-numeric:tabular-nums}
+.row small{display:block;color:#7a6a5c;font-size:11px;margin-top:-2px}
+input[type=range]{flex:1 1 auto;min-width:0;accent-color:var(--orange);height:24px;margin:0}
+#panel.collapsed .body{display:none}
+#toggle{transition:transform .2s}
+#panel.collapsed #toggle{transform:rotate(180deg)}
+
+/* Zoom buttons */
+#zoom{position:absolute;z-index:1000;right:12px;top:12px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+#zoom button{width:28px;height:28px;border:none;border-radius:6px;background:var(--orange);color:#fff;font-size:15px;font-weight:700;line-height:1;padding:0;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.35)}
+#zoom button:active{background:var(--orange-dark)}
+#zoom button:disabled{opacity:.45}
+
+footer{font-size:var(--fs);flex:0 0 auto;background:#fff;border-top:3px solid var(--orange);padding:6px 14px;padding-bottom:max(6px,env(safe-area-inset-bottom));line-height:1.5;color:#5b4d41;z-index:1000}
+footer b{color:var(--orange-dark);font-weight:600}
+
+#zoom button.txt{font-size:var(--fs);line-height:1.15}
+#zoom button.on{background:#fff;color:var(--orange-dark);outline:2px solid var(--orange)}
+.pt i{display:block;width:1.5px;height:1.5px;margin:2.25px;border-radius:50%;background:#C8500A;box-shadow:0 0 2.6px 1.3px #C8500A,0 0 6.5px 2.6px rgba(214,84,10,.55);animation:tw 3s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.3}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.pt i{display:block;width:1.5px;height:1.5px;margin:2.25px;border-radius:50%;background:#C8500A;box-shadow:0 0 2.6px 1.3px #C8500A,0 0 6.5px 2.6px rgba(214,84,10,.55);animation:tw 3s ease-in-out infinite}}
+footer a.ig{display:inline-flex;vertical-align:-3px;margin-left:4px;color:var(--orange-dark)}
+footer a.ig svg{width:16px;height:16px}
+body{padding-top:env(safe-area-inset-top)}
+
+/* Mobile: panel becomes bottom sheet */
+@media (max-width:640px){
+  #left{left:8px;right:44px;top:8px;max-width:none}
+  #panel{width:100%}
+  #zoom{right:8px;top:8px}
+  :root{--fs:10.5px}
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="map"></div>
+
+  <div id="left">
+  <div id="panel">
+<header>
+  <div class="inner">
+    <svg class="logo" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="衛星看地球">
+      <circle cx="30" cy="36" r="18" fill="#fff" fill-opacity=".18" stroke-width="2.2"/>
+      <ellipse cx="30" cy="36" rx="8" ry="18" stroke-width="1.4"/>
+      <path d="M12 36H48M15 26H45M15 46H45" stroke-width="1.4"/>
+      <path d="M24 28c3-3 7-2 9 1s-1 5-4 5-3 4-6 4" stroke-width="0" fill="#fff" fill-opacity=".5"/>
+      <!-- 軌道與繞行的衛星 -->
+      <g transform="rotate(-28 30 36)">
+        <ellipse cx="30" cy="36" rx="29" ry="9" stroke-width="1.4" stroke-dasharray="2 3"/>
+        <g>
+          <rect x="-3.5" y="-3" width="7" height="6" rx="1" fill="#fff" stroke-width="1"/>
+          <rect x="-11" y="-2.2" width="6" height="4.4" fill="#fff" fill-opacity=".35" stroke-width="1"/>
+          <rect x="5" y="-2.2" width="6" height="4.4" fill="#fff" fill-opacity=".35" stroke-width="1"/>
+          <animateMotion dur="7s" repeatCount="indefinite" path="M1 36a29 9 0 1 1 58 0a29 9 0 1 1 -58 0"/>
+        </g>
+      </g>
+    </svg>
+    <div>
+      <h1>1964北北基桃</h1>
+      <p>美軍日冕計畫中，臺灣第一批高解析度衛星影像</p>
+    </div>
+  </div>
+</header>
+    <div class="head" id="phead"><span>圖層透明度</span><span id="toggle">▾</span></div>
+    <div class="body">
+      <div class="row">
+        <label for="s64">1964年衛星影像</label>
+        <input type="range" id="s64" min="0" max="100" value="100">
+        <span class="v" id="v64"></span>
+      </div>
+      <div class="row">
+        <label for="s04">1904年臺灣堡圖</label>
+        <input type="range" id="s04" min="0" max="100" value="0">
+        <span class="v" id="v04"></span>
+      </div>
+      <div class="row">
+        <label for="sg">Google 衛星影像</label>
+        <input type="range" id="sg" min="0" max="100" value="100">
+        <span class="v" id="vg"></span>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="zoom">
+    <button id="ovl" class="txt" aria-pressed="false" aria-label="套疊當今地標與路網" title="套疊當今地標與路網">地標<br>路網</button>
+    <button id="mus" aria-pressed="false" aria-label="背景音樂" title="背景音樂">♫</button>
+    <audio id="bgm" loop preload="none" src="https://commons.wikimedia.org/wiki/Special:FilePath/Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg"></audio>
+  </div>
+
+</div>
+
+<footer>
+  <div><b>圖資處理：</b>許純鎰<a class="ig" href="https://www.instagram.com/geodamma/" target="_blank" rel="noopener" aria-label="Instagram @geodamma" title="Instagram @geodamma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></a></div>
+  <div><b>圖資來源：</b>U.S. Geological Survey, 中央研究院人社中心GIS專題中心, Google</div>
+  <div><b>背景音樂：</b>Erik Satie〈Gymnopédie No. 1〉（Musopen 錄音，公有領域，來源：Wikimedia Commons）</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  // 範圍：121.0016,24.8827 : 121.8102,25.2411 （經度,緯度）
+  var bounds = L.latLngBounds([24.8827,121.0016],[25.2411,121.8102]);
+
+  var map = L.map('map',{
+    zoomControl:false,
+    attributionControl:false,
+    maxBounds:bounds.pad(0.02),
+    maxBoundsViscosity:1.0,
+    minZoom:8,
+    maxZoom:15,
+    zoomSnap:0.5,
+    bounceAtZoomLimits:false
+  });
+
+  // 以範圍計算最小縮放，確保不能縮出北台灣
+  map.fitBounds(bounds);
+
+  var blank = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+  // 圖層由下而上：Google → 1904 → 1964
+  var google = L.tileLayer('https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}',{
+    maxNativeZoom:20, maxZoom:15, opacity:1, errorTileUrl:blank, bounds:bounds
+  }).addTo(map);
+
+  var taiwanfort = L.tileLayer('https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1904-jpg-{z}-{x}-{y}',{
+    maxNativeZoom:15, maxZoom:15, opacity:0, errorTileUrl:blank, bounds:bounds
+  }).addTo(map);
+
+  // 1964 影像：將值為 0 的黑色部分（圖幅外的空白）改為純透明
+  var BLACK_THRESHOLD = 6; // WebP 有損壓縮會讓黑色略偏離 0，故容許少量誤差；要更嚴格可調為 0
+  var CoronaLayer = L.TileLayer.extend({
+    createTile:function(coords,done){
+      var tile = document.createElement('canvas');
+      var size = this.getTileSize();
+      tile.width = size.x; tile.height = size.y;
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function(){
+        tile.width = img.naturalWidth || size.x;
+        tile.height = img.naturalHeight || size.y;
+        var ctx = tile.getContext('2d');
+        ctx.drawImage(img,0,0);
+        try{
+          var d = ctx.getImageData(0,0,tile.width,tile.height), px = d.data;
+          for(var i=0;i<px.length;i+=4){
+            if(px[i]<=BLACK_THRESHOLD && px[i+1]<=BLACK_THRESHOLD && px[i+2]<=BLACK_THRESHOLD) px[i+3]=0;
+          }
+          ctx.putImageData(d,0,0);
+        }catch(e){ /* 若伺服器未允許 CORS，則保留原圖 */ }
+        done(null,tile);
+      };
+      img.onerror = function(){ done(null,tile); };
+      img.src = this.getTileUrl(coords);
+      return tile;
+    }
+  });
+  var corona = new CoronaLayer('https://api.maptiler.com/tiles/01a16e24-20ac-73d7-9847-b356a8b4b9e2/{z}/{x}/{y}?key=piKWFXN8CSGq5dfCqzZc',{
+    maxNativeZoom:17, maxZoom:15, opacity:1, bounds:bounds
+  }).addTo(map);
+
+  // 當今地標與路網：國土測繪中心 EMAP12（WMTS），開啟時置於所有圖層最上方
+  map.createPane('emapPane');
+  var ep = map.getPane('emapPane'); ep.style.zIndex = 350; ep.style.pointerEvents = 'none';
+  var EMAP12_URL = 'https://wmts.nlsc.gov.tw/wmts/EMAP12/default/EPSG%3A3857/{z}/{y}/{x}';
+  var emap = L.tileLayer(EMAP12_URL,{pane:'emapPane',maxNativeZoom:15,maxZoom:15,opacity:1,errorTileUrl:blank,bounds:bounds});
+  var ovl = document.getElementById('ovl');
+  ovl.onclick = function(){
+    var on = !map.hasLayer(emap);
+    if(on) emap.addTo(map); else map.removeLayer(emap);
+    ovl.classList.toggle('on',on); ovl.setAttribute('aria-pressed',on);
+  };
+
+  // 閃爍光點（格式：經度小數5位,緯度；經度皆為 121.xxxxx）
+  var PTS = "69310,25.20792;50256,25.06393;56836,25.05130;31436,24.98566;26122,25.03708;09566,25.03944;18384,24.91918;49253,25.12518;21451,24.95716;13594,25.01297;17256,25.06062;22687,25.09625;14582,24.91325;17689,24.98149;43296,25.03551;52235,25.02709;52569,25.09059;45024,25.10526;44694,25.00405;51583,25.01496;65914,25.06730;58092,25.07924;71305,25.09604;76458,25.15519;64657,25.20254;57514,25.18168;55356,25.12909;49770,25.14433;46167,25.16366;53301,25.05205;25725,24.93563;32895,24.95584;53276,25.12479;48645,25.10921;49105,25.08435;52626,25.11435;53412,25.10976;60279,25.19186;73235,25.15448;74766,25.12850;76764,25.14461;79322,25.11051;76111,25.09904;73398,25.09640;70863,25.14092;68070,25.08833;68374,25.07528;61592,25.03992;59322,25.05448;63297,25.07227;54884,25.03788;53675,25.08041;57812,25.11960;46747,25.05845;43769,25.08309;63381,25.15730;47794,25.11366;46542,25.12613;45092,25.13376;54988,25.18079;55793,25.18410;55525,25.13747;66139,25.11658;07037,24.99624;09822,24.96919;06606,25.03247;10539,24.92741;11229,24.90561;28633,25.08548;30744,25.02248;33724,24.99376;32558,25.02245;29380,25.05088;35596,25.04594;36932,25.02689;04009,25.00349;06792,25.01044;52499,25.14021;50226,25.13396;50556,25.10616;51866,25.12712;38680,25.08376;42007,25.01135;39260,24.97217;40435,25.05358;34640,25.09976;33308,25.11614;35667,24.99036;34032,25.01450;35629,25.02946;32990,25.01646;30948,25.01194;35245,25.05517;30939,25.08135;27268,25.09527;32328,25.10688;32065,25.04654;35174,25.08207;33062,25.03117;33468,25.02122;34241,25.02335;34953,25.01695;36239,25.02018;35576,25.01038;33771,25.07857;32845,25.07928;33075,25.05520;32559,25.06795;34279,25.08748;39223,25.12888;34362,25.12084;38242,25.09651;37708,25.11735;44902,25.12729;43148,25.11550;40882,25.10724;43276,25.14592;38508,25.13708;42823,25.15305;41819,25.15413;41552,25.11031;40250,25.11236;40468,25.09813;40398,25.08763;38375,25.01136;34336,24.97348;41904,24.98178;39723,25.03149;40156,25.01585;42435,25.03929;42069,25.05355;41915,25.07280;42001,25.07806;43606,25.06276;40009,25.07111;38142,25.04191;48855,25.00620;56313,25.02770;57893,25.03562;65236,25.05389;63357,25.04819;61691,25.09512;63344,25.11368;60240,25.17814;60651,25.14934;66019,25.16684;53855,25.17039;53732,25.17990;54365,25.15260;54970,25.14496;48028,25.16015;48811,25.14413;49380,25.14698;46698,25.13990;47035,25.14517;48503,25.13243;48172,25.14470;46464,25.16784;50597,25.14204;52104,25.14262;54081,25.16094;62702,25.12521;64782,25.08981;66676,25.09899;65475,25.13387;62768,25.14893;59659,25.16547;57592,25.19525;58416,25.19589;63100,25.16885;67791,25.18887;56227,25.16814;58434,25.18430;64594,25.13072;64453,25.13234;67226,25.15547;51338,25.17096;50441,25.14896;56281,25.08672;55365,25.09614;57935,25.09155;55749,25.10777;59383,25.14820;56967,25.13306;31472,25.01249;32689,25.00937;30014,25.00495;47959,25.07028;36876,24.98950;36829,25.00411;39753,25.00215;35548,24.97181;33544,25.09529;36838,25.09451;35794,25.08906;36386,25.08035;36953,25.11079;39170,25.11616;41840,25.11805;42489,25.10518;42943,25.11094;43466,25.10578;41953,25.09863;43255,25.08813;42600,25.09331;39600,25.14257;40164,25.13264;41295,25.14189;44287,25.14165;44802,25.14104;42286,25.11801;35857,25.10789;29091,25.09668;26775,25.10834;25867,25.11116;28746,25.11345;30117,25.11309;29650,25.08592;32680,25.09253;27940,25.06775;30643,25.06086;30409,25.06181;30751,25.07150;30388,25.03630;32569,25.01691;32099,25.02640;32387,25.00282;26795,24.99984;19415,25.03080;08369,24.96500;14939,25.05143;77821,25.12930;77802,25.14446;76688,25.12745;75112,25.12961;75946,25.13578;74805,25.13503;75496,25.13212;40387,25.14632;40387,25.11847;42223,25.11959;43119,25.11904;45362,25.11366;46713,25.09496;47624,25.08275;43309,25.12026;41373,25.13924;43860,25.12282;57461,25.16273;57933,25.17898;58794,25.16286;69883,25.12132;62199,25.13976;59781,25.08976;58597,25.10969;59206,25.10179;59033,25.08202;59168,25.20012;64322,25.15520;64433,25.15638;64058,25.17454;65136,25.17707;68073,25.17132;68861,25.17448;69039,25.17872;64821,25.20913;40690,24.98970;42208,24.98448;56371,25.11322;55032,25.11372;53592,25.10869;53193,25.09619;54541,25.09590;55291,25.10186;55890,25.10141;54169,25.10341;54882,25.11069;57389,25.12610;55695,25.12208;56266,25.12045;56094,25.13610;55841,25.14720;54170,25.13650;50183,25.15545;49069,25.16378;49990,25.17254;53351,25.17541;52780,25.15172;53045,25.14615;52930,25.12856;52798,25.13109;58043,25.15656;60056,25.12892;60352,25.12832;58605,25.12166;58772,25.13436;58193,25.14177;57079,25.13903;56607,25.14613;56591,25.14782;62386,25.12674;69327,25.13009;68829,25.13394;68882,25.11073;61689,25.14914;62048,25.14964;63068,25.16272;59766,25.15928;67943,25.12424;67504,25.13065;66058,25.13660;67168,25.13730;66828,25.13979;70944,25.17086;70588,25.17641;67395,25.16567;65983,25.16300;66626,25.16433;66292,25.16587;31420,25.08374;40450,25.12716;41563,25.13006";
+  PTS.split(';').forEach(function(t){
+    var a = t.split(',');
+    var icon = L.divIcon({className:'pt',iconSize:[8,8],
+      html:'<i style="animation-delay:'+(Math.random()*3).toFixed(2)+'s;animation-duration:'+(2.2+Math.random()*2).toFixed(2)+'s"></i>'});
+    L.marker([+a[1],+('121.'+a[0])],{icon:icon,interactive:false,keyboard:false}).addTo(map);
+  });
+
+  // 背景音樂（瀏覽器通常禁止自動播放：首次點擊畫面時才會開始，可用右側 ♫ 鈕開關）
+  var bgm = document.getElementById('bgm'), mus = document.getElementById('mus'), userOff = false;
+  bgm.volume = 0.4;
+  function setMus(on){ mus.classList.toggle('on',on); mus.setAttribute('aria-pressed',on); }
+  mus.onclick = function(){
+    if(bgm.paused){ userOff=false; bgm.play().then(function(){setMus(true);}).catch(function(){}); }
+    else { userOff=true; bgm.pause(); setMus(false); }
+  };
+  document.addEventListener('pointerdown',function(e){
+    if(e.target.closest && e.target.closest('#mus')) return;
+    if(!userOff && bgm.paused) bgm.play().then(function(){setMus(true);}).catch(function(){});
+  },{once:true});
+
+  // 透明度滑桿
+  function bind(id, vid, layer){
+    var s = document.getElementById(id), v = document.getElementById(vid);
+    function upd(){ layer.setOpacity(s.value/100); v.textContent = s.value + '%'; }
+    s.addEventListener('input', upd); upd();
+  }
+  bind('s64','v64',corona);
+  bind('s04','v04',taiwanfort);
+  bind('sg','vg',google);
+
+
+  // 面板收合（手機預設收合）
+  var panel = document.getElementById('panel');
+  document.getElementById('phead').onclick = function(){ panel.classList.toggle('collapsed'); };
+  if (window.matchMedia('(max-width:640px)').matches) panel.classList.add('collapsed');
+
+  // 視窗尺寸改變（旋轉手機等）時重新計算
+  window.addEventListener('resize',function(){
+    map.invalidateSize();
+  });
+})();
+</script>
+</body>
+</html>
