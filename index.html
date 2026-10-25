@@ -3,89 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="1964年美軍日冕計畫衛星影像，與1904年臺灣堡圖、現今衛星影像疊合對照的北北基桃互動地圖。">
+<meta name="theme-color" content="#E05216">
 <title>1964北北基桃｜美軍日冕計畫中，臺灣第一批高解析度衛星影像</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
-:root{--fs:11px;
-  --orange:#F37021; --orange-dark:#C85710; --orange-soft:#FFF1E6;
-  --ink:#2b2118; --panel:rgba(255,255,255,.94);
+:root{--fs:14.4px;
+  --orange:#E05216; --orange-dark:#E05216;
+  --ink:#2b2118; --panel:rgba(255,255,255,.75);
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{font-size:var(--fs);display:flex;flex-direction:column;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:var(--ink);background:#222;overflow:hidden}
 
-header{position:relative;background:var(--orange);color:#fff;padding:10px 16px 10px 14px}
+header{position:relative;background:var(--orange);color:#fff;padding:5px 16px 5px 14px}
 #left{position:absolute;z-index:1000;left:12px;top:12px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;max-width:calc(100% - 80px);pointer-events:none}
 header .inner{position:relative;display:flex;align-items:center;gap:12px}
 header .logo{flex:0 0 auto;width:44px;height:44px}
-header h1{margin:0;font-size:calc(var(--fs)*1.3);letter-spacing:.06em;line-height:1.2;font-weight:900}
-header p{margin:3px 0 0;font-size:var(--fs);opacity:.95}
+header h1{margin:0;font-size:19.2px;letter-spacing:.06em;line-height:1.2;font-weight:900}
+header p{white-space:nowrap;margin:3px 0 0;font-size:var(--fs);opacity:.95}
 
 #stage{position:relative;flex:1 1 auto;min-height:0}
 #map{position:absolute;inset:0;background:#d8d2c8}
 
 /* Control panel */
-#panel{pointer-events:auto;width:336px;background:var(--panel);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);overflow:hidden}
+#panel{pointer-events:auto;width:410px;background:var(--panel);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);overflow:hidden}
 #panel .head{font-size:var(--fs);display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-weight:700;color:var(--orange-dark);cursor:pointer;user-select:none}
 #panel .body{padding:2px 14px 12px}
 .row{display:flex;align-items:center;gap:8px;margin-top:2px}
 .row label{flex:0 0 8em;font-size:var(--fs);font-weight:600;white-space:nowrap;margin:0}
 .row .v{flex:0 0 2.8em;text-align:right;font-size:var(--fs);font-weight:600;color:var(--orange-dark);font-variant-numeric:tabular-nums}
-.row small{display:block;color:#7a6a5c;font-size:11px;margin-top:-2px}
-input[type=range]{flex:1 1 auto;min-width:0;accent-color:var(--orange);height:24px;margin:0}
+input[type=range]{flex:1 1 auto;min-width:0;height:24px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;--f:1;cursor:pointer}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--orange) calc(8px + (100% - 16px)*var(--f)),transparent 0)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-5px;border-radius:50%;background:var(--orange);border:2px solid #fff;box-shadow:0 0 3px rgba(0,0,0,.45)}
+input[type=range]::-moz-range-track{height:6px;background:transparent}
+input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--orange)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--orange);border:2px solid #fff;box-shadow:0 0 3px rgba(0,0,0,.45)}
 #panel.collapsed .body{display:none}
 #toggle{transition:transform .2s}
 #panel.collapsed #toggle{transform:rotate(180deg)}
 
 /* Zoom buttons */
 #zoom{position:absolute;z-index:1000;right:12px;top:12px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
-#zoom button{width:28px;height:28px;border:none;border-radius:6px;background:var(--orange);color:#fff;font-size:15px;font-weight:700;line-height:1;padding:0;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.35)}
+#zoom button{width:32px;height:32px;border:none;border-radius:6px;background:var(--orange);color:#fff;font-size:17px;font-weight:700;line-height:1;padding:0;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 #zoom button:active{background:var(--orange-dark)}
-#zoom button:disabled{opacity:.45}
 
-footer{font-size:var(--fs);flex:0 0 auto;background:#fff;border-top:3px solid var(--orange);padding:6px 14px;padding-bottom:max(6px,env(safe-area-inset-bottom));line-height:1.5;color:#5b4d41;z-index:1000}
+footer{font-size:var(--fs);position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.75);border-top:3px solid var(--orange);padding:6px 14px;padding-bottom:max(6px,env(safe-area-inset-bottom));line-height:1.5;color:#5b4d41;z-index:1000}
 footer b{color:var(--orange-dark);font-weight:600}
 
-#zoom button.txt{font-size:var(--fs);line-height:1.15}
+#zoom button.txt{font-size:12px;font-weight:400;line-height:1.1}
 #zoom button.on{background:#fff;color:var(--orange-dark);outline:2px solid var(--orange)}
-.pt i{display:block;width:1.5px;height:1.5px;margin:2.25px;border-radius:50%;background:#C8500A;box-shadow:0 0 2.6px 1.3px #C8500A,0 0 6.5px 2.6px rgba(214,84,10,.55);animation:tw 3s ease-in-out infinite}
+.pt i{display:block;width:1.5px;height:1.5px;margin:2.25px;border-radius:50%;background:#E05216;box-shadow:0 0 2.6px 1.3px #E05216,0 0 6.5px 2.6px rgba(224,82,22,.55);animation:tw 3s ease-in-out infinite}
 @keyframes tw{0%,100%{opacity:.3}50%{opacity:1}}
-@media (prefers-reduced-motion:reduce){.pt i{display:block;width:1.5px;height:1.5px;margin:2.25px;border-radius:50%;background:#C8500A;box-shadow:0 0 2.6px 1.3px #C8500A,0 0 6.5px 2.6px rgba(214,84,10,.55);animation:tw 3s ease-in-out infinite}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 footer a.ig{display:inline-flex;vertical-align:-3px;margin-left:4px;color:var(--orange-dark)}
 footer a.ig img{width:16px;height:16px;display:block;border-radius:50%}
 body{padding-top:env(safe-area-inset-top)}
 
+/* 十字游標（電腦）：按下時縮小 1/2；手機以 .cx 顯示每個觸控點 */
+:root{
+  --cur:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><path d='M10 1V19M1 10H19' stroke='white' stroke-width='3'/><path d='M10 1V19M1 10H19' stroke='%23222' stroke-width='1.2'/></svg>") 10 10,crosshair;
+  --cur-p:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><path d='M5 .5V9.5M.5 5H9.5' stroke='white' stroke-width='1.6'/><path d='M5 .5V9.5M.5 5H9.5' stroke='%23222' stroke-width='.6'/></svg>") 5 5,crosshair;
+}
+#map,#map .leaflet-grab,#map .leaflet-interactive{cursor:var(--cur) !important}
+#map.pressed,#map.pressed .leaflet-grab,#map.pressed .leaflet-interactive{cursor:var(--cur-p) !important}
+#xh{position:absolute;inset:0;z-index:900;pointer-events:none;overflow:hidden}
+.cx{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;transition:transform .12s ease-out,opacity .18s}
+.cx::before,.cx::after{content:"";position:absolute;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+.cx::before{left:0;top:9.25px;width:20px;height:1.5px}
+.cx::after{top:0;left:9.25px;height:20px;width:1.5px}
+.cx.press{transform:scale(.5)}
+.cx.out{opacity:0}
+
+/* ── 互動與動畫 ── */
+button:focus-visible{outline:2px solid #fff;outline-offset:2px;box-shadow:0 0 0 4px var(--orange)}
+#panel{animation:drop .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes drop{from{opacity:0;transform:translateY(-14px)}}
+#zoom{animation:slide .7s .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slide{from{opacity:0;transform:translateX(24px)}}
+header{overflow:hidden}
+header::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.3) 50%,transparent 60%);transform:translateX(-100%);animation:sh 7s 2s ease-in-out infinite}
+@keyframes sh{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.pt{animation:ptin 1.2s 2.4s both}
+@keyframes ptin{from{opacity:0}}
+#mus.on{animation:bob 1.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-2px) rotate(-8deg)}}
+#ld{position:absolute;left:0;right:0;top:0;height:3px;z-index:1100;overflow:hidden;opacity:0;transition:opacity .3s;pointer-events:none}
+#ld.on{opacity:1}
+#ld::after{content:"";position:absolute;top:0;bottom:0;width:35%;background:var(--orange);box-shadow:0 0 8px var(--orange);animation:ldm 1.1s ease-in-out infinite}
+@keyframes ldm{from{left:-35%}to{left:100%}}
+.leaflet-bottom{bottom:calc(var(--fh,60px) + 4px)}
+#map .rd{cursor:pointer!important;user-select:none}
+.peg,.peg *{pointer-events:none!important}
+.pgsh{position:absolute;left:5px;top:29.5px;width:14px;height:5px;border-radius:50%;background:rgba(0,0,0,.45);filter:blur(1px)}
+.pegsvg{display:block;transform-origin:50% 100%}
+.rd{background:var(--panel);padding:1px 8px;border-radius:6px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.leaflet-control-scale-line{background:var(--panel)}
+.me i{display:block;width:12px;height:12px;margin:2px;border-radius:50%;background:#1a73e8;border:2px solid #fff;animation:ping 1.6s infinite}
+@keyframes ping{from{box-shadow:0 0 0 0 rgba(26,115,232,.6)}to{box-shadow:0 0 0 18px rgba(26,115,232,0)}}
+#toast{position:fixed;left:50%;bottom:calc(var(--fh,60px) + 14px);z-index:1500;transform:translate(-50%,12px);background:rgba(43,33,24,.9);color:#fff;padding:6px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#about{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.45);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+#about.show{opacity:1;visibility:visible}
+#about .card{position:relative;max-width:440px;background:#fff;border-top:5px solid var(--orange);border-radius:12px;padding:16px 20px 18px;line-height:1.7;max-height:100%;overflow:auto;transform:scale(.92);transition:transform .25s}
+#about.show .card{transform:none}
+#about h2{margin:0 0 6px;color:var(--orange-dark);font-size:19.2px}
+#about p{margin:0 0 8px}
+#about ul{margin:0 0 4px;padding-left:1.4em}
+#about li{margin:0 0 4px}
+#about a{color:var(--orange-dark);font-weight:600}
+#about .x{position:absolute;right:8px;top:4px;border:none;background:none;font-size:24px;color:#7a6a5c;cursor:pointer}
+
+.wt .rot{transform-origin:13px 12px;animation:spin 2.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wt .hr{position:absolute;left:8px;top:0;font:10px/1 sans-serif;color:#ff5fa2;text-shadow:0 0 2px #fff;opacity:0;pointer-events:none;animation:heart 2.4s ease-out infinite}
+@keyframes heart{0%{opacity:0;transform:translate(0,0) scale(.4)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx,0),-28px) scale(1.1)}}
+#map .wt.leaflet-interactive,#map.pressed .wt.leaflet-interactive{cursor:pointer!important}
+/* pop up：字級 0.75 倍、留白縮小、框的左下角貼近錨點（小人頭部／圖示的右上方），不顯示小尖角 */
+.tip.leaflet-popup{margin-bottom:0}
+.tip .leaflet-popup-tip-container{display:none}
+.tip .leaflet-popup-content-wrapper{border-radius:6px;padding:0;transform:translateX(50%)}
+.tip .leaflet-popup-content{margin:2px 6px;font-size:calc(var(--fs)*.75);font-weight:600;line-height:1.3;white-space:nowrap;color:var(--orange-dark)}
+
+/* 地圖動畫圖示（共用：26×34、白底橘線，底部中心為座標點） */
+.ic svg{display:block;overflow:visible}
+#map .ic.leaflet-interactive,#map.pressed .ic.leaflet-interactive{cursor:pointer!important}
+.ic .fb{transform-box:fill-box;transform-origin:center}
+.ic .pr{transform-box:fill-box;transform-origin:center;animation:prop .22s linear infinite}
+@keyframes prop{0%,100%{transform:scaleY(1)}50%{transform:scaleY(-1)}}
+.ic .cf{animation:coinf 2.4s linear infinite}
+.ic .cb{animation:coinb 2.4s linear infinite}
+@keyframes coinf{0%{transform:scaleX(1);opacity:1}12.5%{transform:scaleX(.707)}25%{transform:scaleX(0);opacity:1}25.01%{opacity:0}74.99%{opacity:0;transform:scaleX(0)}75%{opacity:1;transform:scaleX(0)}87.5%{transform:scaleX(.707)}100%{transform:scaleX(1);opacity:1}}
+@keyframes coinb{0%{transform:scaleX(0);opacity:0}24.99%{opacity:0;transform:scaleX(0)}25%{opacity:1;transform:scaleX(0)}37.5%{transform:scaleX(.707)}50%{transform:scaleX(1)}62.5%{transform:scaleX(.707)}75%{transform:scaleX(0);opacity:1}75.01%{opacity:0}100%{transform:scaleX(0);opacity:0}}
+.ic .cl{animation:cld 5s linear infinite}
+@keyframes cld{0%{transform:translateX(-9px);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateX(16px);opacity:0}}
+.ic .wd{animation:wnd 1.8s ease-in-out infinite}
+@keyframes wnd{0%{transform:translateX(-8px);opacity:0}20%{opacity:.95}80%{opacity:.95}100%{transform:translateX(22px);opacity:0}}
+.ic .sm{transform-box:fill-box;transform-origin:center;animation:smk 2.4s ease-out infinite}
+@keyframes smk{0%{transform:translate(0,0) scale(.4);opacity:0}15%{opacity:.9}100%{transform:translate(var(--sx,4px),-15px) scale(1.5);opacity:0}}
+.ic .wv{animation:wvv 1.5s ease-in-out infinite}
+@keyframes wvv{0%,100%{opacity:.12}35%{opacity:1}}
+
 /* Mobile: panel becomes bottom sheet */
 @media (max-width:640px){
-  #left{left:8px;right:44px;top:8px;max-width:none}
+  #left{left:8px;right:8px;top:8px;max-width:none}
+  header .logo{width:32px;height:32px}
+  header .inner{gap:8px}
   #panel{width:100%}
-  #zoom{right:8px;top:8px}
-  :root{--fs:10.5px}
+  #zoom{right:8px;top:auto;bottom:calc(var(--fh,60px) + 8px)}
 }
+@media (max-width:400px){header .logo{display:none}}
+@media (max-width:360px){:root{--fs:min(14.4px,calc((100vw - 50px)/22))}}
 </style>
 </head>
 <body>
 
 <div id="stage">
   <div id="map"></div>
+  <div id="ld"></div>
+
+  <div id="xh"></div>
 
   <div id="left">
   <div id="panel">
 <header>
   <div class="inner">
-    <svg class="logo" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="衛星看地球">
-      <circle cx="30" cy="36" r="18" fill="#fff" fill-opacity=".18" stroke-width="2.2"/>
-      <ellipse cx="30" cy="36" rx="8" ry="18" stroke-width="1.4"/>
-      <path d="M12 36H48M15 26H45M15 46H45" stroke-width="1.4"/>
-      <path d="M24 28c3-3 7-2 9 1s-1 5-4 5-3 4-6 4" stroke-width="0" fill="#fff" fill-opacity=".5"/>
-      <!-- 軌道與繞行的衛星 -->
+    <svg class="logo" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="衛星看臺灣">
+      <defs><filter id="gl" x="-60%" y="-30%" width="220%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
+      <path d="M35.0 19.0L38.5 20.7L39.2 22.0L37.8 23.5L37.6 26.0L36.0 30.5L35.7 32.5L34.6 36.5L33.5 41.0L31.6 44.5L29.5 47.5L28.8 52.7L27.7 51.5L27.1 49.0L26.3 48.0L23.6 45.8L22.4 42.5L21.9 39.5L22.0 35.5L23.6 32.0L25.4 29.0L27.4 26.0L29.5 24.0L31.4 21.5L33.7 20.0Z" fill="#fff" stroke="none" filter="url(#gl)"><animate attributeName="opacity" values=".15;.95;.15" dur="2.4s" repeatCount="indefinite"/></path>
+      <path d="M35.0 19.0L38.5 20.7L39.2 22.0L37.8 23.5L37.6 26.0L36.0 30.5L35.7 32.5L34.6 36.5L33.5 41.0L31.6 44.5L29.5 47.5L28.8 52.7L27.7 51.5L27.1 49.0L26.3 48.0L23.6 45.8L22.4 42.5L21.9 39.5L22.0 35.5L23.6 32.0L25.4 29.0L27.4 26.0L29.5 24.0L31.4 21.5L33.7 20.0Z" fill="#fff" stroke-width="1.2"><animate attributeName="fill-opacity" values=".78;1;.78" dur="2.4s" repeatCount="indefinite"/></path>
+      <g fill="#fff" stroke="none">
+        <circle cx="38" cy="22" r=".9"><animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite"/></circle>
+        <circle cx="22" cy="40" r=".9"><animate attributeName="opacity" values="0;1;0" dur="1.8s" begin=".6s" repeatCount="indefinite"/></circle>
+        <circle cx="29" cy="50" r=".9"><animate attributeName="opacity" values="0;1;0" dur="1.8s" begin="1.2s" repeatCount="indefinite"/></circle>
+      </g>
       <g transform="rotate(-28 30 36)">
         <ellipse cx="30" cy="36" rx="29" ry="9" stroke-width="1.4" stroke-dasharray="2 3"/>
         <g>
           <rect x="-3.5" y="-3" width="7" height="6" rx="1" fill="#fff" stroke-width="1"/>
           <rect x="-11" y="-2.2" width="6" height="4.4" fill="#fff" fill-opacity=".35" stroke-width="1"/>
           <rect x="5" y="-2.2" width="6" height="4.4" fill="#fff" fill-opacity=".35" stroke-width="1"/>
-          <animateMotion dur="7s" repeatCount="indefinite" path="M1 36a29 9 0 1 1 58 0a29 9 0 1 1 -58 0"/>
+          <animateMotion dur="7s" repeatCount="indefinite" path="M1 36a29 9 0 1 0 58 0a29 9 0 1 0 -58 0"/>
         </g>
       </g>
     </svg>
@@ -117,17 +216,31 @@ body{padding-top:env(safe-area-inset-top)}
   </div>
 
   <div id="zoom">
+    <button id="loc" class="txt" aria-label="定位到我的位置" title="定位到我的位置">我的<br>位置</button>
     <button id="ovl" class="txt" aria-pressed="false" aria-label="套疊當今地標與路網" title="套疊當今地標與路網">地標<br>路網</button>
     <button id="mus" aria-pressed="false" aria-label="背景音樂" title="背景音樂">♫</button>
+    <button id="inf" aria-label="關於這組影像" title="關於這組影像">ⓘ</button>
     <audio id="bgm" loop preload="none" src="https://commons.wikimedia.org/wiki/Special:FilePath/Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg"></audio>
   </div>
 
 </div>
 
+<div id="toast" role="status"></div>
+<div id="about" role="dialog" aria-modal="true" aria-label="關於這組影像"><div class="card"><button class="x" aria-label="關閉">×</button>
+  <h2>關於這組影像</h2>
+  <p>日冕計畫（CORONA）是美國於1960至1972年間運作的偵察衛星計畫，底片於1995年解密，現由美國地質調查所（USGS）保存。</p>
+  <p>透過1904年臺灣堡圖、1964年美軍偵照與現今衛星影像，我們得以一窺百年來北北基桃的現代化與都市化地景。</p>
+  <p>日冕計畫不僅解密冷戰時期的臺灣樣貌，更難能可貴地保留軍管時期金馬兩地的戰地姿態。這是政府公開資料中較少見的。</p>
+  <p>歡迎查看另外兩個專案：</p>
+  <ul>
+    <li><a href="https://geodamma.github.io/QuemoyLandscape1970s/" target="_blank" rel="noopener">美軍偵照衛星鏡頭下1970s金門築城要塞化的地景巔峰</a></li>
+    <li><a href="https://geodamma.github.io/MatsuLandscape1968/" target="_blank" rel="noopener">俯瞰馬祖：1968</a></li>
+  </ul></div></div>
+
 <footer>
   <div><b>圖資處理：</b>許純鎰<a class="ig" href="https://www.instagram.com/geodamma/" target="_blank" rel="noopener" aria-label="Instagram @geodamma" title="Instagram @geodamma"><img src="data:image/png;base64,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" alt="" width="16" height="16"></a></div>
   <div><b>圖資來源：</b>U.S. Geological Survey, 中央研究院人社中心GIS專題中心, Google</div>
-  <div><b>背景音樂：</b>Erik Satie〈Gymnopédie No. 1〉（Musopen 錄音，公有領域，來源：Wikimedia Commons）</div>
+  <div><b>背景音樂：</b>Erik Satie〈Gymnopédie No. 1〉，取自Wikimedia Commons</div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -141,7 +254,7 @@ body{padding-top:env(safe-area-inset-top)}
     attributionControl:false,
     maxBounds:bounds.pad(0.02),
     maxBoundsViscosity:1.0,
-    minZoom:8,
+    minZoom:11,
     maxZoom:15,
     zoomSnap:0.5,
     bounceAtZoomLimits:false
@@ -173,7 +286,7 @@ body{padding-top:env(safe-area-inset-top)}
       img.onload = function(){
         tile.width = img.naturalWidth || size.x;
         tile.height = img.naturalHeight || size.y;
-        var ctx = tile.getContext('2d');
+        var ctx = tile.getContext('2d',{willReadFrequently:true});
         ctx.drawImage(img,0,0);
         try{
           var d = ctx.getImageData(0,0,tile.width,tile.height), px = d.data;
@@ -230,7 +343,7 @@ body{padding-top:env(safe-area-inset-top)}
   // 透明度滑桿
   function bind(id, vid, layer){
     var s = document.getElementById(id), v = document.getElementById(vid);
-    function upd(){ layer.setOpacity(s.value/100); v.textContent = s.value + '%'; }
+    function upd(){ layer.setOpacity(s.value/100); v.textContent = s.value + '%'; s.style.setProperty('--f', s.value/100); }
     s.addEventListener('input', upd); upd();
   }
   bind('s64','v64',corona);
@@ -238,10 +351,257 @@ body{padding-top:env(safe-area-inset-top)}
   bind('sg','vg',google);
 
 
+  // 頁底說明欄浮在地圖上：量測其高度，讓手機右下角按鈕不被遮住
+  var foot = document.querySelector('footer');
+  function setFh(){ document.documentElement.style.setProperty('--fh', foot.offsetHeight + 'px'); }
+  setFh(); window.addEventListener('resize', setFh);
+
+  // 十字游標：滑鼠按下時游標縮小；觸控時在每個觸控點顯示十字（支援多點）
+  var stage = document.getElementById('stage'), xh = document.getElementById('xh'), mc = map.getContainer(), cross = {}, tch = {};   // tch：目前按住的觸控點 pointerId → clientX
+  function place(el,e){ var r = stage.getBoundingClientRect(); el.style.left = (e.clientX - r.left) + 'px'; el.style.top = (e.clientY - r.top) + 'px'; }
+  mc.addEventListener('pointerdown',function(e){
+    if(e.target.closest && e.target.closest('.leaflet-control,.wt,.ic')) return;
+    if(e.pointerType === 'mouse'){ if(e.button === 0){ mc.classList.add('pressed'); placePeg(e); } return; }
+    tch[e.pointerId] = e.clientX;   // 同時有多個觸控點時，小人與 pop up 以最左側的觸控點為準
+    if(Object.keys(tch).every(function(k){ return +k === e.pointerId || tch[k] >= e.clientX; })) placePeg(e);
+    var el = document.createElement('div'); el.className = 'cx'; place(el,e); xh.appendChild(el); cross[e.pointerId] = el;
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('press'); }); });
+  });
+  mc.addEventListener('pointermove',function(e){ if(e.pointerId in tch) tch[e.pointerId] = e.clientX; var el = cross[e.pointerId]; if(el) place(el,e); });
+  function endPtr(e){
+    if(e.pointerType === 'mouse'){ mc.classList.remove('pressed'); return; }
+    delete tch[e.pointerId];
+    var el = cross[e.pointerId]; if(!el) return;
+    delete cross[e.pointerId]; el.classList.add('out'); setTimeout(function(){ el.remove(); },200);
+  }
+  window.addEventListener('pointerup',endPtr); window.addEventListener('pointercancel',endPtr);
+
   // 面板收合（手機預設收合）
   var panel = document.getElementById('panel');
   document.getElementById('phead').onclick = function(){ panel.classList.toggle('collapsed'); };
   if (window.matchMedia('(max-width:640px)').matches) panel.classList.add('collapsed');
+
+  // ── 進度條、座標與比例尺 ──
+  var ld = document.getElementById('ld'), st = {};
+  [google,taiwanfort,corona].forEach(function(l,i){
+    l.on('loading',function(){ st[i]=1; ld.classList.add('on'); });
+    l.on('load',function(){ delete st[i]; if(!Object.keys(st).length) ld.classList.remove('on'); });
+  });
+  L.control.scale({position:'bottomleft',imperial:false,maxWidth:110}).addTo(map);
+  var rdc = L.control({position:'bottomleft'}), rd;
+  rdc.onAdd = function(){ rd = L.DomUtil.create('div','rd'); return rd; }; rdc.addTo(map);
+  rd.textContent = '點擊地圖放置小人，即可取得座標';
+  rd.title = '點擊複製座標';
+  L.DomEvent.disableClickPropagation(rd);
+
+  // 小人：每次按下（點擊或拖曳的起點）就在該處放置，座標（先緯度、後經度）寫入座標欄
+  // 行政區（由使用者提供的 geojson 簡化而成，座標以 1e-4 度為單位、差分編碼）
+  var DIST = [["新北市新莊區",[[[5267,3106,-18,28,-5,-2,-4,18,-5,-1,3,19,-16,4,-46,28,-8,-7,-22,2,-7,-6,-14,14,-4,-8,-9,-2,-6,17,-19,-1,-43,30,-6,14,-25,11,2,18,-8,10,-24,9,2,6,-5,5,8,2,-6,11,4,23,26,-3,-12,4,-4,10,15,4,-3,7,5,5,-6,4,-11,-4,-6,11,-14,-1,-5,7,-27,9,0,11,-8,8,-24,-5,-5,5,32,18,63,-8,5,3,-24,8,47,14,52,-9,23,-20,-10,-18,13,8,-1,-8,9,1,4,-5,-5,-10,17,-6,-5,-36,21,-8,8,6,12,-2,14,-12,-16,-34,16,1,31,-15,7,16,14,-11,28,9,-21,16,17,13,69,80,40,-22,7,43,31,-18,14,1,-1,35,-19,20,21,7,-15,44,-10,2,1,13,-9,20,8,12,45,15,4,14,9,-8,7,8,8,-5,3,14,10,-1,-4,21,29,-17,13,15,16,6,0,23,66,30,21,5,24,-11,9,-22,-1,-30,20,-37,0,-27,13,-29,-30,-94,6,-53,-47,-18,-63,-35,-65,-58,-111,-167,-14,-106,-28,1,-19,-10,-8,-12,1,-17,-8,-11,9,59,10,25,-19,19,-9,28,-11,5,-12,-5,-6,16,8,4]]]],["臺北市內湖區",[[[6799,3529,-66,-11,-18,5,0,47,-21,75,25,46,3,23,-8,29,11,4,-21,23,-61,19,-17,20,-16,36,-18,5,-14,-6,-10,23,4,12,-23,7,-14,12,-13,26,23,3,2,12,13,5,8,18,9,2,11,23,32,-7,50,12,33,63,32,13,28,1,27,-18,13,19,17,-2,32,17,29,54,18,3,4,-6,33,15,21,-9,8,-29,19,-24,79,-16,41,-21,50,-13,20,-28,48,-38,33,-3,8,-11,-9,-8,-3,-14,12,-22,-3,-10,21,-21,5,-19,-10,-17,4,-14,-5,-10,-15,-4,-17,-17,2,-12,-6,-9,12,6,-2,-8,-17,-9,-5,-25,-11,2,-10,-15,9,-37,-39,-20,3,-24,-11,7,-7,-20,-32,5,-33,-37,-43,-13,-63,-5,-39,11,-17,-2,-68,-50]]]],["新北市三芝區",[[[6357,4865,-10,-20,-13,-9,-73,-6,-44,-39,-21,32,-56,17,-40,35,-24,1,1,12,-10,11,-35,9,-6,19,-18,2,-54,-18,-7,20,-17,2,0,17,-15,11,-59,11,1,19,31,12,5,11,-7,15,-16,9,1,7,-9,-2,-10,9,13,11,-2,10,-13,10,17,30,42,-1,6,17,14,-9,31,26,17,-8,8,22,-20,30,-3,32,23,-15,-3,13,21,-4,12,22,-16,14,-23,1,-9,7,-4,11,13,24,-14,11,-40,14,-30,-1,-140,58,-17,-2,-3,7,-39,17,-10,-13,-6,6,-39,-1,-23,10,-28,2,-13,9,-4,19,-14,1,-8,8,-45,4,-44,-25,26,61,42,48,35,4,63,-12,49,13,55,40,20,33,21,57,39,46,101,38,41,31,23,11,13,-2,26,18,0,-6,13,-2,10,16,22,-2,7,5,-5,6,7,4,10,2,3,-26,6,-7,-2,-14,24,-7,10,-8,33,-4,13,-32,33,-40,17,-5,12,-23,11,-2,4,-23,22,-15,2,-12,17,5,8,-13,18,7,9,-5,-8,35,22,26,4,-10,53,7,16,-5,4,9,6,-1,4,15,13,1,27,-12,17,-15,7,8,22,-46,-7,-21,-17,-19,0,-28,-16,-12,13,-39,-12,-32,-19,-14,13,-16,-14,-21,9,-5,28,19,8,16,14,10,15,-2,7,-13,-18,-13,34,-31,23,-57,-9,-29,5,-18,-5,-15,19,-9,28,-35,24,-12,2,-18,31,-52,-17,-11,-19,2,-30,-38,-25,-16,-19,-3,-19,-42,-14,-9,-1,-14,10,-11,0,-20,-19,-17,-17,10,-9,-1,-34,-24,-14,-17,-5,-51,-21,-16]]]],["臺北市大同區",[[[6114,3486,-24,-3,-44,15,16,38,2,24,-10,32,14,55,2,53,-9,46,-14,35,67,9,19,10,2,8,6,-14,21,8,63,-31,-22,-44,-13,-81,16,-51,-7,-96,-12,-15,-67,15]]]],["新北市板橋區",[[[5375,2843,-24,-26,-1,-30,-12,-32,-50,-34,-19,6,-1,43,-8,30,7,14,-1,27,-22,30,2,13,33,34,-4,3,7,8,5,-4,2,12,20,26,-2,13,8,15,20,11,28,-1,14,106,111,167,63,56,105,53,42,10,86,5,68,-6,-12,-18,-4,-21,52,-120,-1,-75,-67,-1,6,-12,-9,-19,5,-4,-1,-10,-58,1,-43,-43,-41,-26,5,-11,-25,-12,6,-17,-23,-48,21,-26,9,-1,-11,-26,-28,-12,-22,0,-18,19,-22,4,-8,49,-14,-5,-18,-48,-34,21,-55,-21,-15,19,-7,-7,-11,4,-8,-44,-18,-18]]]],["新竹縣湖口鄉",[[[1319,1547,-29,-6,-18,-14,-91,9,-15,6,-23,-20,-7,-15,-21,34,-86,29,-88,47,-10,12,-5,19,67,65,-6,6,69,60,7,14,41,30,-4,9,6,1,5,-10,49,48,31,16,-9,8,12,16,11,38,3,20,-4,6,11,33,15,21,-2,9,28,79,20,33,4,23,34,14,44,80,68,88,19,57,17,12,18,-12,6,-17,30,-8,38,-25,29,6,3,-16,-9,-22,6,-6,-7,-19,8,-4,26,-65,-9,-29,8,-4,-5,-19,-22,-45,-1,-36,11,-22,-1,-9,-15,-12,3,-5,28,-18,18,9,66,-18,14,-9,6,-24,27,4,32,-12,36,-3,14,6,14,-1,24,-13,8,-11,28,-11,19,-20,100,18,78,25,10,-16,9,-49,-17,-37,-15,-15,28,-11,30,-24,84,-22,-10,-50,-32,0,-13,10,-15,1,-25,-13,8,-32,-13,-23,-5,0,-4,14,-11,11,-29,1,-27,-10,-6,-20,-25,13,-6,-19,-55,5,-55,-6,-18,-36,-44,6,-13,-16,-18,-8,-20,7,-42,-13,-2,11,-41,1,-47,-21,-15,-15,-26,5,-35,-22,-37,-9,-5,16,-85,-65,-11,-23,-11,11,-39,-1,-3,10,-30,4,-18,17]]]],["臺北市大安區",[[[6319,3172,-67,61,-35,49,9,43,17,29,29,-13,55,-5,2,119,46,-8,90,5,74,-8,38,8,-3,-158,-48,-50,75,-71,32,-39,3,-21,17,-13,7,-19,-30,0,-48,42,-29,-7,-25,-27,-26,10,-55,-21,-11,8,-23,-5,-33,3,-19,46]]]],["新北市樹林區",[[[4964,2459,-16,4,-17,-13,-27,2,-52,-14,-37,3,-23,-7,-31,63,-59,-31,-50,7,-9,-12,-26,-9,0,15,15,8,25,38,5,35,60,18,64,42,37,40,-11,7,-34,1,-24,28,-7,20,-46,25,-16,35,26,18,13,17,42,13,27,24,17,7,14,-3,31,20,0,7,-21,19,9,31,-7,18,6,22,38,7,25,-31,35,1,25,21,3,18,19,11,45,9,1,9,-14,10,1,13,-18,18,2,12,-9,15,-58,28,-25,22,14,18,-1,17,22,-9,26,16,43,-4,25,14,34,3,17,9,23,-3,9,22,15,-14,7,6,22,-2,9,7,45,-28,16,-4,-3,-19,5,1,4,-18,5,2,3,-12,19,-17,-8,-6,6,-16,12,5,11,-5,9,-28,19,-19,-10,-25,-9,-59,-14,-27,-5,4,-7,-8,4,-3,-28,-24,-7,-21,22,-32,1,-27,-7,-14,8,-30,-1,-41,21,-8,-32,-8,-24,-22,-20,-9,-76,-19,-32,-13,3,-10,-7,-28,6,-50,-8,-22,-71,-58,-21,-38,-33,-19,-14,21,8,10]]]],["桃園市新屋區",[[[1069,2461,-26,-30,-14,-31,-38,9,-49,-18,-15,-20,0,-20,-24,6,-29,33,-54,10,28,36,17,47,71,72,48,31,51,90,64,74,12,52,1,39,-8,32,19,15,-19,0,-10,15,25,5,24,18,19,28,18,83,16,37,71,6,75,87,22,9,30,-2,27,-18,27,19,23,-12,7,-17,26,1,8,11,42,-26,59,-19,1,-21,29,-6,11,-28,31,-42,38,19,11,-1,-11,25,64,12,25,-27,34,-10,25,-25,33,25,12,-12,15,2,15,-21,10,7,20,-25,10,-4,10,-18,52,4,11,-39,14,-21,-2,-8,32,-29,11,-3,43,47,11,21,27,11,9,-6,30,6,45,36,7,-2,16,-16,9,-26,-8,-13,-14,3,-6,-7,0,-17,9,-8,-6,-11,0,-25,21,-31,-5,-16,14,-22,11,-6,38,-65,49,-27,39,-4,25,-42,19,-6,20,9,33,-19,60,-11,48,-42,-75,-13,-26,-13,-41,-34,-39,-52,-32,5,-50,32,-67,11,-53,20,-22,-13,10,-31,-12,5,-22,-2,-12,12,-29,-16,-4,10,-13,4,-17,-17,-9,3,-6,-23,-15,-15,-12,14,-31,-9,-12,3,-51,66,-23,18,-33,6,-7,-10,-45,17,-4,-3,-9,11,-5,-7,-19,0,-17,-23,1,-29,11,-23,-20,15,-13,1,-15,-13,-16,-1,-36,14,-12,-11,1,-7,-19,-14,-28,-8,8,-19,-5,-5,-6,-43,-85,0,-40,-23,-28,-6,-38,25,-13,-1,-19,10,-4,16,-19,14,2,9,-39,7,-18,-9,-25,31,-73,-25,-10,12,-10,1,-32,-47,-41,9,-25,-9,-11,12,-21,-1,-31,15,-8,17,-22,-6]]]],["新北市平溪區",[[[8211,3088,-15,-14,-19,0,-41,-14,-17,37,-57,52,6,23,-26,11,-31,50,12,21,21,12,1,9,-13,21,0,24,51,21,44,-5,6,12,25,14,8,30,-6,25,18,13,45,52,22,1,26,11,3,13,27,26,21,-6,26,15,27,6,23,-17,33,-6,6,6,22,-1,17,7,6,14,30,22,43,9,14,11,24,1,31,-25,15,5,9,21,11,5,14,18,27,17,17,-3,14,36,26,33,24,11,28,0,23,15,14,-2,50,36,50,13,33,-15,25,-29,29,-50,23,-16,0,-14,-11,-16,15,-50,8,-3,34,16,24,-5,16,-11,-7,-62,18,-39,-5,-25,20,-26,-8,-19,-23,3,-34,-22,-18,-21,2,-21,-20,-33,-21,0,-8,-7,-44,-8,-66,-65,-40,-8,-5,-15,-38,-34,-2,-42,-19,-15,-4,-10,-18,-7,-15,-26,6,-15,-22,-6,-24,-33,-21,-8,-14,-14,-23,-5,-53,-37,12,-26,29,-11,10,-23,23,-11,20,1,13,-5,15,-31,13,-7,-20,6,-20,-40,-17,-18,-40,0,-35,11,-16,-18,-19,-4,-17,-16,-24,8,-25,-10,-16,4,-39,-29,-21,10,-21,-1,-17,46,-27,-6,-9,7,-23,-41,-28,7,-45,-13,-31,-4,-18,4,-33,-11,-28,9,1,19,-10,24,13,9,21,2,12,20,22,7,7,19,-2,19,22,25,-31,69,-31,37,-1,10,13,4,8,38,-4,25]]]],["臺北市文山區",[[[6507,2868,1,-15,-18,-15,-19,-5,-20,4,-9,11,6,22,-6,12,-47,-5,-26,10,1,37,-18,27,-10,-21,-25,-25,1,36,-13,39,10,30,24,24,-21,53,53,26,9,-29,33,-3,23,5,11,-8,55,21,24,-10,19,12,8,15,29,7,48,-42,17,-3,47,19,24,21,6,18,27,-4,11,10,18,-3,27,-17,92,17,18,10,18,-3,19,9,17,-9,5,-12,-10,-14,-7,-27,0,-48,20,-4,17,-14,10,-20,-1,-23,-24,-39,13,-15,-3,-13,29,-14,-2,-24,-19,-15,8,-61,-13,-16,1,-6,10,-14,47,-23,61,2,20,-12,11,1,18,-18,34,-14,2,-29,-16,-6,-13,7,-19,-13,-13,2,-32,-14,-22,-19,-30,-1,-37,-20,-32,3,-12,-8,-23,10,-15,27,-14,-3,-9,7,-24,-12,-30,-2,-10,13,-36,6,-25,15,-40,2,-3,-15,-18,-13,-21,4,-41,-4,-21,7,-29,0,-28,36,-9,37,-15,13,-9,32,-15,9,-6,34,8,42,-19,22]]]],["桃園市平鎮區",[[[3124,1911,-36,10,-12,14,-44,-43,-7,4,-72,-17,-2,5,-5,-2,-2,19,9,13,-13,15,-13,-5,-2,17,-9,-10,-4,4,-11,-25,-24,-21,-30,10,-10,37,7,15,9,6,8,50,10,19,-2,23,19,50,-2,106,-14,23,16,56,-42,106,1,23,-28,28,-2,25,-27,18,-8,18,-12,90,11,6,-10,9,9,8,9,81,30,-2,22,-17,29,10,34,26,7,-12,0,-43,-11,-53,13,-1,5,-14,25,-17,133,2,33,-13,23,-1,4,-13,21,-20,24,7,3,-8,12,-5,12,17,11,-13,-5,-10,17,-21,3,-19,-12,-25,3,-12,18,-9,8,-22,1,-32,28,-21,9,-15,2,-25,17,-3,8,4,26,-21,15,6,9,-22,30,1,5,-18,27,-6,1,-5,69,18,84,37,-27,-56,-37,-33,34,-32,5,-27,-28,-63,5,-24,-9,-35,0,-52,-18,-23,-11,-30,-5,-87,-14,-71,-10,-23,-22,-25,-15,5,13,14,2,29,10,19,0,41,12,11,-5,36,-28,0,-18,22,-21,-25,-20,2,0,-7,-16,-3,1,-7,-10,-3,-7,9,-32,15,-12,44,-11,12,-7,-9,-19,-5,1,-10,-37,5,-13,-23,1,-12,-7,4,-7,22,7,22,-11,4]]]],["桃園市桃園區",[[[3956,2752,-19,-75,11,-14,6,-24,7,-3,-8,-4,-2,-20,-38,8,-3,9,-25,22,-12,55,-31,-5,-29,45,-2,9,12,28,-8,14,10,16,-5,25,13,16,-6,17,-46,-24,-23,-20,-11,-19,-49,-29,-46,-35,-1,-7,-15,-4,5,5,-4,17,-13,18,-7,48,-19,37,0,13,47,26,35,3,3,-10,29,17,19,-3,9,-22,9,20,-7,28,10,9,3,20,37,44,11,5,-26,64,-36,53,-9,44,-13,13,-4,40,35,17,-2,24,18,-5,18,12,2,12,-11,23,67,16,8,-31,7,-6,12,3,10,-22,10,-1,17,19,18,5,12,18,22,7,5,11,53,8,9,-1,15,-26,29,1,28,10,58,-26,16,-24,19,2,47,-9,10,4,16,-18,-8,-21,14,-5,-19,-14,-2,-20,11,-17,41,-2,-4,-33,28,-27,-9,-10,-3,-19,2,-20,8,-8,-33,-69,-20,-19,-34,-8,-7,-17,5,-13,-19,-13,8,-17,-6,-8,4,-4,-9,-5,45,-63,17,10,25,-32,-27,-10,15,-18,-11,-8,-1,-8,-37,-19,3,-15,-7,-10,-15,7,-13,-9,-1,12,-16,13,-5,-20,-11,2,0,9,-21,3,-7,-10,0,6,-17,11,-9,-8,-14,10,3,21,-14,5,-16,-27,-8,8,-18,-6,-28,16,13,36,-27,8,-13,-28,-31,4]]]],["新北市林口區",[[[4686,3653,-137,-2,2,20,-13,7,0,8,-15,2,-2,-9,-24,18,-32,6,17,8,7,13,2,-8,8,-3,6,15,12,8,18,-3,-17,12,-19,-10,5,19,-5,13,-10,-22,-9,-7,-61,-11,6,9,-18,0,-2,28,7,-7,4,9,12,-13,18,-3,16,6,-17,5,-3,17,22,-10,-12,17,28,3,-55,13,64,11,5,-5,9,5,-10,12,-57,18,-53,-5,-82,46,-20,27,-31,15,-68,5,-11,10,-66,25,-77,3,-14,17,-2,32,-11,5,-3,13,-15,10,-28,-15,-39,-4,-14,43,-31,-1,-19,18,-24,10,11,28,-5,54,43,1,49,12,23,17,-2,13,21,5,-1,36,21,-20,18,10,36,-10,7,19,47,-2,6,-22,33,-2,41,6,25,-7,154,27,62,26,33,-3,19,15,57,13,35,22,38,13,41,25,13,30,18,-63,17,-17,38,-64,17,-12,5,-24,23,-8,-2,-16,32,-31,13,-2,19,-18,26,2,-5,-23,11,-12,-13,-19,19,-4,9,-20,14,-7,23,-57,6,-4,1,9,11,-7,-8,31,3,12,0,-15,11,-4,-6,-8,18,-19,4,-20,-7,-6,11,-11,-6,-6,15,-3,-6,-5,4,-7,-5,-9,6,-4,-2,-23,-7,-3,2,-34,-16,-10,-5,14,5,6,-17,9,-1,-15,-28,6,2,-12,25,-5,1,-19,8,-4,-12,-28,4,-13,9,1,18,37,7,-18,27,-9,-3,9,-14,9,1,16,13,-4,7,16,6,-3,-5,11,3,13,23,-3,2,9,7,1,-26,11,5,22,11,1,11,11,0,19,10,4,-22,26,7,11,-17,27,11,-6,-3,22,9,3,-3,11,-20,16,18,-1,-2,14,11,-5,6,-11,5,-50,7,-2,18,19,1,-10,8,-6,-3,-13,11,-11,9,8,11,-40,7,-4,17,12,-8,-33,4,-11,-31,32,-22,10,26,-27,-8,-14,12,3,8,-23,-27,-17,2,-15,10,-8,-2,-16,18,-20,16,-3,5,-16,21,20,-7,-17,2,-19,-50,37,-8,-21,-21,22,-29,14,-3,7,9,0,-4,4,-22,-7,10,-5,-4,-10,10,-14,-2,-12,21,-2,-5,-4,5,-4,-15,-11,-2,-13,-14,-6,19,-2,11,10,6,-8,22,6,4,-12,-60,-8,-41,15,13,-26,-5,-11,2,-37,-8,-9,7,-1,22,21,7,-3,-6,22,26,-20,19,1,2,-15,-13,-7,-18,1,-4,-7,7,-15,24,-13,-4,-15,-17,-5,0,17,-7,-7,-26,-5,4,15,-7,8,-27,3,-26,11,19,12,-11,7,15,20,1,18,-9,7,-43,-29,3,-6,-5,-3,-19,0,1,-13,-6,-2,-10,1,5,10,-12,10,-5,16,-1,6,11,2,-3,4,-18,-3,-5,-26,-13,17,-54,4,-15,8,-2,-6,18,-13,0,-7,8,6,28,-8,4,-8,-6,-6,6,-6,-2,-20,-28,1,2,-10,-40,10]]]],["新北市瑞芳區",[[[9321,3704,3,-15,-28,-47,9,-22,0,-29,8,-10,-9,-18,12,-14,22,-46,1,-21,9,-7,-8,-30,-21,-4,-16,10,-27,4,-9,-6,-19,0,-13,10,-17,1,-22,-32,-27,-7,-21,36,5,23,-17,38,6,63,-16,11,-24,5,-34,-16,-8,3,-15,50,11,16,0,14,-23,16,-29,50,-25,29,-27,15,-41,-8,-26,-11,-39,-30,-14,2,-23,-15,-28,0,-24,-11,-63,78,-23,9,-55,-4,-16,26,-8,33,4,25,-4,17,6,17,-14,39,11,23,4,42,-31,12,-1,10,7,-2,7,11,-7,5,1,22,-14,20,-21,3,-13,-19,-19,10,-8,19,19,13,52,-9,23,25,21,-2,18,10,36,-9,28,25,22,41,16,12,14,-4,11,-13,74,-20,25,16,43,-59,22,6,24,-3,9,11,21,6,1,18,7,6,-9,2,-1,8,13,14,-13,7,-5,15,-29,20,4,30,26,-10,9,-10,10,0,7,-12,13,-2,12,-11,8,4,5,16,14,15,-12,21,15,17,2,12,-15,32,-15,8,15,20,28,-7,6,-9,30,-16,50,17,27,-5,46,20,39,-3,-32,-32,7,-8,-22,6,-2,-21,-23,-19,1,-35,10,2,-7,-9,6,0,-5,-2,12,-18,14,-10,29,3,2,8,24,-3,-6,22,-10,-2,13,10,-3,-8,6,-17,16,17,-11,27,3,6,15,1,12,-8,6,8,7,-8,10,0,3,14,22,-4,4,4,2,-5,12,7,14,-5,12,5,8,-6,-2,7,8,-6,-2,8,11,-4,-1,-7,28,-7,32,2,72,-25,45,-2,3,10,4,-5,12,12,1,-20,15,-1,9,-11,35,0,-2,6,8,3,8,14,16,-16,10,16,11,-6,1,6,9,1,2,-6,12,7,14,-6,5,-14,4,4,10,-9,13,8,1,-5,23,6,4,-7,11,7,-1,-7,11,0,8,-8,17,7,-7,-7,24,-8,-7,-12,8,-6,12,4,6,-7,8,7,4,-4,3,7,3,-5,12,1,14,8,0,-8,11,-5,47,16,26,20,1,10,63,-10,28,16,2,-7,12,2,-2,7,17,22,32,6,26,16,17,6,20,-4,8,-9,-39,-62,-33,-21,-65,-28,-16,0,-30,-10,-7,9,-14,-2,-43,-15,-4,-11,-16,-11,-25,1,-10,-25,-16,-13,-2,-13,26,-51,-17,-24,-32,-6,-15,5,-8,-7,-28,-1,-56,-25,-31,-27,-30,-5,-15,4,-19,-13,-52,4,-5,10,-47,14,-32,-2,-11,10,-35,-17,-10,-10,-15,-54,-42,-1,-35,-45,-9,-21,-23,-19,1,-14,-15,-26,-26,-24,-41,-23]]]],["桃園市龜山區",[[[4427,2823,-16,-20,-43,4,-21,-9,-7,-11,-24,-1,-8,8,-10,-3,-25,32,-17,-10,-42,57,-3,7,9,4,-4,4,6,8,-8,16,19,14,-5,13,7,17,34,8,20,19,33,69,-8,8,-2,20,3,19,9,10,-28,27,4,33,-41,2,-10,15,1,22,19,14,-14,5,8,21,-16,18,-10,-4,-47,9,-19,-2,-16,24,-58,26,-28,-10,-32,0,-23,62,-36,62,-12,34,-10,18,-20,16,92,-25,47,18,8,20,77,0,46,28,14,1,19,37,54,31,107,30,38,17,49,3,139,-9,141,12,55,-18,7,-14,35,4,8,-7,11,5,-1,-15,29,-1,-2,-7,-19,-1,-13,-10,20,-6,-12,-8,1,-14,-30,12,1,-13,18,-18,-17,-19,-14,-5,51,9,-2,-6,6,-1,9,5,1,12,17,6,-16,-15,19,4,46,-25,32,-1,-9,-20,-12,16,-10,-5,9,-20,-19,11,-14,0,-8,8,-5,-12,6,-4,-1,-13,16,11,34,-8,-17,-15,19,-3,3,-11,32,8,-48,-17,24,-8,-13,-3,-17,8,-9,-6,-6,5,-23,2,-32,-19,29,1,8,-8,0,-11,27,-9,5,-7,14,1,6,-11,15,2,1,-13,-16,-5,5,-11,11,-3,-26,3,-4,-23,6,-11,-8,-2,5,-5,-2,-6,25,-10,7,-9,-2,-18,25,-11,8,-15,41,-29,19,1,4,-16,12,-1,-8,-13,-22,4,-17,-9,-34,-3,-25,-14,-43,4,-26,-16,-23,8,3,-15,-15,-19,25,-22,58,-28,9,-15,-2,-12,18,-18,-1,-13,14,-10,-1,-9,-45,-9,-19,-11,-3,-18,-25,-21,-35,-1,-25,31,-38,-7,-6,-22,7,-18,-9,-31,21,-19,0,-7,-31,-20,-14,3,-17,-7,-27,-24,-42,-13,-33,-31,-43,19,-9,9,-25,-8,-2,-10,-25,4,-46,-4,-18,30,-52,-20]]]],["臺北市松山區",[[[6542,3444,-77,8,-27,-3,5,221,-32,17,-22,2,-3,23,102,-1,5,7,31,12,3,26,99,-32,74,38,13,-16,9,-32,-6,-30,-22,-39,21,-75,-1,-43,16,-10,69,12,2,-34,-108,-3]]]],["桃園市大園區",[[[3132,3179,-7,-8,8,-13,-16,-16,-13,9,-8,-8,36,-30,10,-18,-8,-4,1,-44,7,-13,-10,0,-20,-24,-19,31,8,31,-15,14,14,28,-21,13,10,46,-27,-7,17,22,-18,27,17,23,-69,25,-14,-7,-12,-19,-21,29,-12,-2,-12,-32,0,-51,-34,6,-26,-29,-5,5,-1,34,-19,22,0,40,-26,26,-9,-33,-17,-27,-16,9,2,7,-14,7,-14,27,-26,-7,-13,9,-34,-1,-27,6,-37,-17,0,17,-39,17,70,96,22,45,-56,24,-10,21,8,31,-26,13,-38,55,14,17,-14,23,-1,37,23,19,-10,10,3,14,-33,28,-14,22,15,15,16,3,4,24,-5,41,95,37,35,24,20,4,46,35,96,21,12,15,31,7,44,38,43,5,5,18,17,7,17,-3,71,35,17,1,14,7,14,18,73,13,93,33,70,8,32,-3,-4,50,6,25,16,-12,6,-25,16,-9,48,9,6,-25,36,-39,16,-112,23,-37,16,-47,41,-29,22,-32,17,-45,60,-23,11,-28,-29,-43,-25,-8,-6,8,-17,-2,-7,-28,-8,-10,-16,-5,-1,-28,-29,-24,-49,-30,-25,13,-23,-8,-7,-14,21,-26,-29,-5,-27,-15,6,-10,-3,-5,25,-38,-19,-17,13,-11,-29,-13,-16,6,-64,-39,8,-34,-11,-7,3,-6,-25,-17,5,-39,-26,-11,9,-15,12,-2,18,-15,25,-52,16,-10,40,-60,20,-18,14,-33,-30,1,-61,-14,-38,-15,-16,2,-5,-8,-33,0,-8,-5,9,-21,-21,-5,-6,-11,-28,19,-8,22,5,45,-8,26,23,32,2,30,-6,-1,0,-14,-8,-11,-11,9,-14,-14,-27,22,-8,-8,-6,5,-9,-6,-13,10]]]],["桃園市楊梅區",[[[2436,1811,-47,13,-21,-15,-12,-29,-15,5,-8,11,-21,5,-16,-4,-15,13,-43,-11,-103,27,-29,23,-28,12,15,14,17,37,-9,49,-10,16,-78,-25,-100,-18,-19,20,-28,11,-8,11,-29,14,-23,-6,-36,3,-32,12,-27,-4,-6,24,-20,11,-60,16,-21,-8,-28,21,15,13,-10,34,1,33,22,45,5,19,-8,4,9,29,-26,65,-8,4,7,17,-6,8,9,22,-2,18,38,21,85,0,6,43,5,5,-8,19,28,8,19,14,-1,7,12,11,36,-14,16,1,15,13,13,-1,20,-15,-11,23,-1,29,17,23,19,0,5,7,9,-11,4,3,45,-17,7,10,33,-6,23,-18,51,-66,12,-3,31,9,12,-14,15,15,6,23,9,-3,17,17,13,-4,4,-10,29,16,12,-12,22,2,12,-5,-10,31,22,13,53,-20,67,-11,50,-32,32,-5,39,52,66,46,188,28,12,-91,8,-17,27,-18,2,-25,28,-28,-1,-23,42,-104,-16,-58,14,-23,2,-106,-19,-50,2,-23,-10,-19,-8,-50,-9,-6,-7,-15,10,-37,-22,3,-8,-7,-22,0,-21,-28,4,-10,-9,-17,1,-14,-23,-12,5,-28,-5,-24,14,-23,-7,-19,-53,2,-23,14,-24,4,-52,-6,-20,19,-3,20,-22,34,-35,-5,-11,8,-14,-4,-12,6,-38,-10]]]],["臺北市士林區",[[[6243,3801,15,-49,-7,-10,-30,32,-59,28,-21,-8,-6,14,-2,-8,-19,-10,-67,-9,-22,51,-27,40,-111,99,-76,38,-147,8,-28,10,-63,44,-1,15,10,28,27,48,60,-45,33,-10,33,1,136,42,33,2,47,-24,14,-25,5,-33,0,-72,6,-17,34,-15,74,-8,25,17,62,20,12,36,16,12,14,26,-1,20,12,6,4,14,23,5,6,9,-7,37,-14,17,11,23,10,7,7,27,31,9,3,20,15,11,-2,64,-8,6,9,26,22,5,15,17,16,0,27,13,8,11,13,-3,10,12,35,-9,3,9,19,10,9,14,12,64,31,30,26,57,47,22,6,8,-1,16,21,54,-20,37,-2,15,17,25,29,12,5,25,12,7,0,11,8,6,-4,17,6,6,-12,26,45,29,6,15,13,10,22,5,2,7,13,0,21,-12,13,13,27,-4,6,-4,-11,-15,11,-11,2,-31,-10,-3,0,-10,-11,-12,9,-21,-19,-25,26,-50,-18,-30,-43,-36,-3,-32,18,-14,43,2,4,-7,43,-21,20,7,19,-78,-24,-35,42,-21,3,-22,21,-33,-2,-14,26,-31,21,-9,36,-32,9,8,7,-3,-11,-22,0,-36,32,-7,-3,-10,-33,-34,-25,2,-9,-42,-10,-15,-9,-2,-14,-39,-15,-20,-25,10,-32,-16,-4,6,-18,-3,-29,-54,-32,-17,-17,2,-13,-19,-27,18,-28,-1,-32,-13,-33,-63,-50,-12,-32,7,-11,-23,-9,-2,-8,-18,-13,-4,-5,-15,-92,-21,-9,13,-18,1,-8,11,-32,-13,-55,-39,-19,-28,-20,-4,-24,-28,-18,-2]]]],["基隆市七堵區",[[[7988,3680,-23,21,-44,2,-19,14,-18,0,-69,53,-13,2,0,9,-10,4,-2,11,15,23,-6,24,17,4,1,24,-5,9,-7,3,-17,-9,-48,-45,-61,29,-15,22,-18,13,-28,1,-9,15,-25,7,-7,11,-20,7,2,17,-52,33,-3,20,-15,14,13,15,17,2,3,12,-20,49,-40,40,-5,54,5,21,-15,11,2,12,-17,43,-49,30,-34,-3,-18,6,-6,14,-41,26,-14,50,22,17,51,21,23,-2,21,6,11,16,22,-9,37,9,39,-9,19,31,40,11,28,31,60,0,48,11,5,13,19,10,61,1,2,-10,20,-4,-1,-25,11,-9,14,-1,0,-30,-11,-21,49,-22,29,-38,68,-28,21,-31,23,1,3,-51,22,-24,4,-53,22,-2,30,8,28,-38,24,-17,7,6,19,-14,27,4,22,-24,2,-15,32,1,1,12,7,10,11,2,2,15,38,-24,-5,-22,-24,-15,-15,-23,-17,-50,-26,-16,-19,-4,0,-15,30,-15,13,-14,30,-4,8,-17,15,-13,-1,-13,-36,-24,1,-35,10,-27,-18,-8,-9,-16,-3,-33,15,-25,2,-27,30,-62,-4,-33,14,-17,-11,-57,-21,32,-36,4,-5,15,-29,14,-13,23,-54,42,-30,-3,-28,-11,-23,13,-39,-6]]]],["新北市萬里區",[[[7911,4660,-1,-14,-22,-5,-15,-25,-25,-15,-16,6,-5,-13,-17,-2,-26,-18,-8,-17,-61,-1,-19,-10,-5,-13,-48,-11,-60,0,-28,-31,-40,-11,-19,-31,-39,9,-37,-9,-22,9,-11,-16,-24,-6,-18,3,-36,-14,-41,-28,-29,0,-49,-14,-22,6,-5,-13,-48,-42,-26,-12,-11,-20,-32,7,0,36,11,22,-7,3,-9,-8,-36,32,-21,9,-26,31,2,14,-21,33,-3,22,-42,22,24,34,-20,78,69,19,7,16,34,33,23,33,9,24,17,3,12,10,3,38,21,25,8,26,8,8,4,30,-4,8,10,5,5,17,-18,14,6,14,8,8,12,-3,35,45,31,25,23,-1,18,28,63,55,75,40,43,3,14,14,-2,8,9,2,-4,17,23,15,42,11,33,-64,24,-30,49,-45,13,-3,-13,-3,11,-1,18,16,-15,-20,6,-2,15,17,0,-22,6,-3,12,13,-10,-14,37,-26,8,1,5,-11,24,-9,6,1,2,14,11,-12,9,8,-12,10,8,-2,28,19,8,-33,8,2,22,15,-1,13,11,0,35,26,13,-4,0,-27,16,1,4,6,-10,7,11,9,-9,9,11,-7,8,6,20,4,3,-4,2,12,11,5,4,19,17,12,4,17,48,28,11,-4,-7,-6,8,-2,-16,-10,1,-11,-18,-11,-64,-64,0,-20,-10,0,14,-3,-11,-3,6,-8,13,11,2,-10,18,5,-20,-21,7,-14,-14,-5,-10,-21,-25,-12,-3,-20,-7,9,-12,-20,-17,-11,6,-16,-8,-7,20,-45,24,-33,26,-22,9,2,11,13,25,-1,-5,13,22,-18,38,-4,19,-38,20,2,6,-10,25,6,-31,-26,-44,-5,-13,-42,-18,-4,-2,-17]]]],["新竹縣新埔鎮",[[[1931,942,-22,-28,-26,10,-12,-8,-25,-3,-2,16,-17,7,-3,18,-19,6,-3,17,9,13,-7,13,-22,15,-28,2,-14,10,-14,65,-67,31,-4,10,-10,0,-8,7,-28,5,-21,-3,-5,10,-27,6,-7,6,11,0,-1,8,-24,2,21,3,-15,14,-127,25,-17,11,-33,46,-46,6,-44,35,-7,27,9,65,-33,13,-27,71,-39,11,-28,-4,-13,7,5,13,25,22,15,-6,91,-9,18,14,28,6,19,-3,18,-17,30,-4,3,-10,39,1,11,-11,11,23,85,65,5,-16,37,9,35,22,26,-5,15,15,47,21,41,-1,2,-11,42,13,20,-7,18,8,13,16,44,-6,18,36,55,6,55,-5,6,19,25,-13,6,20,27,10,29,-1,11,-11,4,-14,5,0,13,23,-8,32,25,13,15,-1,13,-10,32,0,10,50,20,-4,41,11,15,-13,16,4,21,-5,8,-11,15,-5,12,29,23,15,20,-10,14,3,22,-15,38,10,12,-6,14,4,11,-8,35,5,22,-34,2,-27,-19,-2,32,-57,14,-56,-9,-7,8,-7,-4,-8,11,-14,-13,-10,-8,5,9,-12,-11,1,-14,-9,4,-5,-16,-7,4,-7,-6,-15,8,-12,-12,-5,-4,-20,-19,-12,-8,-25,-37,-22,-45,-9,2,-6,37,0,19,-54,-15,-2,-7,6,-24,-12,-19,4,-10,10,-75,-10,-8,7,-64,-2,-21,-9,-11,-18,-15,1,-20,-19,-28,-14,-17,17,-9,-11,-16,-5,-56,14,-15,10,-6,-8,-13,1,-12,-12,-9,1,-3,-4,7,-3,19,6,17,-30,7,1,8,-33,-22,-43,18,-22,3,-20,42,-3,-5,-16,-26,-13,14,-30,-3,-11,24,-39,0,-12,-28,-67,-10,-57,-19,-1,-21,8,-29,-3,-26,13,-16,-3,-18,13,-18,-10]]]],["新北市三重區",[[[5663,3412,-6,26,30,94,-13,29,0,27,-21,37,5,42,11,-1,29,20,-1,38,11,-1,2,12,25,-8,18,5,17,39,22,13,29,33,9,22,10,6,0,40,71,63,87,-76,28,-42,34,-79,10,-52,-2,-52,-14,-54,10,-35,-9,-44,-10,-18,-43,-45,-50,-22,-61,-2,-39,-35,-68,6,-121,-13]]]],["臺北市萬華區",[[[5954,3093,-26,1,-32,38,-11,41,3,60,-49,109,1,32,48,52,74,6,52,28,32,38,44,-15,17,0,-10,-10,-30,-107,-25,-53,-1,-13,50,-50,32,-10,1,-23,-37,-6,-84,-91]]]],["基隆市暖暖區",[[[8486,3553,-10,-16,-17,-7,-22,1,-6,-6,-33,6,-23,17,-54,-21,-20,7,-19,16,11,57,-14,17,4,33,-30,62,-2,27,-15,25,3,33,9,16,18,8,-10,27,-1,35,36,24,1,13,-15,13,-8,17,-30,4,-13,14,-30,15,0,15,43,18,30,71,26,16,10,22,73,1,3,-13,9,-6,2,-47,9,-5,23,7,32,-10,36,38,8,0,8,-19,19,-10,13,19,21,-3,14,-20,-1,-22,7,-5,-7,-11,-7,2,1,-10,31,-12,-4,-42,-11,-23,14,-39,-6,-17,4,-17,-5,-21,9,-37,16,-26,55,4,23,-9,63,-79,-26,-32,-14,-36,-17,3,-27,-17,-14,-18,-11,-5,-8,-21,-16,-5,-31,25,-24,-1,-14,-11,-43,-9]]]],["新北市石碇區",[[[7670,2524,-13,-24,2,-43,8,-9,3,-50,26,-9,6,-88,15,-17,31,-19,14,-34,17,-10,-12,-7,-19,1,-15,-15,-39,-22,-33,-7,-24,-12,-5,-10,10,-20,0,-18,19,-28,-44,-31,4,-17,-17,-20,-73,-30,-3,-9,-12,0,-27,-22,10,-25,15,-8,15,-19,-11,-16,-2,-37,-19,-46,10,-14,24,-8,11,-17,-10,-42,2,-16,-25,-12,-6,-10,-20,-6,-12,-39,-24,-32,-14,-1,-15,13,-14,0,-20,-10,-7,-14,-25,-21,-11,15,-22,4,-21,21,-43,1,-42,17,-11,-3,-6,-14,-17,4,-24,-12,-62,24,-86,2,-30,8,-18,22,-38,1,-21,29,-30,15,-21,20,-91,23,22,43,-11,24,10,14,-9,9,-6,19,2,18,16,30,4,55,-24,24,-45,15,-25,14,-12,16,-17,4,40,28,15,22,72,4,55,24,49,31,33,-4,15,-10,12,-21,14,-8,18,3,-16,16,-2,53,-11,25,-1,40,-15,35,24,54,4,31,9,17,21,15,-5,22,-14,17,0,17,22,4,11,20,54,-7,4,8,-6,26,20,24,-8,41,25,5,4,26,-11,49,42,21,13,-2,19,13,12,-7,15,4,4,21,51,19,87,64,29,12,8,11,16,7,-13,28,-7,34,7,44,-14,14,1,10,14,15,60,1,2,14,16,17,-7,36,-48,7,-9,12,1,21,22,20,-11,15,6,50,-5,38,-14,25,10,14,0,14,28,11,19,-10,15,-19,35,23,39,4,38,-12,60,-2,18,28,-6,20,11,21,-4,3,3,35,50,-10,14,17,50,4,11,15,29,12,30,26,20,1,22,14,39,3,15,-9,20,-3,5,-23,-8,-6,0,-9,14,-18,28,-11,20,-1,15,-19,0,-24,13,-21,-1,-9,-21,-12,-12,-22,31,-49,26,-11,-6,-23,57,-52,17,-37,41,14,19,0,15,14,8,-6,7,-31,-8,-38,-13,-4,1,-10,31,-37,31,-70,-22,-24,2,-19,-7,-19,-22,-7,-12,-20,-21,-2,-13,-9,11,-33,-6,-45,-29,-5,-28,15,-11,-6,-32,9,-31,-20,-24,-38,-22,-4,-15,-18,-45,-2,-26,-13,-28,3,-20,-22,-13,-28,-22,-11,-25,-28,-49,-5,-64,-18]]]],["新北市鶯歌區",[[[4468,2344,-28,-31,-42,-28,-66,13,-112,-17,12,32,-13,10,-7,-2,-5,16,-25,11,-24,37,83,48,63,12,12,11,-19,13,-17,23,1,61,11,53,-11,49,17,14,-9,10,-20,-13,17,19,-1,34,-4,10,-30,-17,-11,-1,-3,17,37,19,1,8,11,8,-15,14,4,8,33,9,8,-8,22,1,9,11,21,9,42,-5,17,21,45,-35,51,20,19,-30,45,4,25,-4,2,10,25,8,50,-28,-3,-13,15,-26,46,-25,7,-20,24,-28,34,-1,11,-8,-37,-39,-64,-42,-60,-18,-3,-27,-14,-29,-14,-18,-14,-7,-25,-44,-107,-58]]]],["新北市石門區",[[[6540,5929,63,-9,17,11,32,0,7,6,-5,3,15,10,-8,9,7,-2,6,14,19,14,83,5,111,-64,93,-12,-7,-1,3,-13,64,-35,39,-50,78,-23,51,-34,-14,-18,-16,-8,-7,-50,-11,-13,13,-18,-4,-13,6,-5,-6,-8,11,-26,-1,-12,7,-7,-28,-46,-54,6,-65,-11,-36,-39,-3,-23,-19,-32,-39,-11,-39,-42,-64,-50,-23,-48,4,-30,-9,-21,-32,-24,-66,-5,-34,-22,-19,-32,-31,52,-2,18,-24,12,-28,35,-19,9,5,15,-5,18,9,29,-23,57,-34,31,18,13,-7,13,-15,2,-14,-10,-8,-16,-28,-19,-9,5,14,21,-13,16,19,14,12,32,-13,39,16,12,0,28,17,19,7,21,-22,46,-7,-8,-17,15,-27,12,-13,-1,-4,-15,-6,1,-4,-9,-16,5,-53,-7,-4,10,-22,-26,8,-35,-9,5,-18,-7,-8,13,-17,-5,-2,12,-22,15,-4,23,-11,2,-12,23,-17,5,-33,40,-13,32,-33,4,-11,9,-22,5,1,15,-8,16,-1,17,17,6,-11,57,10,22,14,7,12,-2,15,-19,6,-32,29,-18,29,1,19,19,26,-1,16,-8,35,16,22,20,17,3,12,12,3,14,-14,35,4,11,33,32,36,-25,5,-32,41,-21,51,-9]]]],["新北市中和區",[[[5816,2738,-10,16,-12,6,-3,17,-21,17,-13,-1,-15,39,2,8,31,26,22,37,-28,3,-20,14,5,6,-5,5,-18,10,-24,-13,-6,-11,-10,10,-1,19,-19,-16,-8,-1,-21,27,23,48,-6,17,25,12,-5,11,41,26,43,43,58,-1,1,10,-5,4,9,19,-6,12,67,1,9,-26,34,-39,21,-10,29,7,93,-37,17,-16,-3,-12,-8,-1,-15,-17,0,-9,22,1,39,44,19,-4,6,-21,-9,-20,9,-18,-27,-45,17,0,31,21,88,20,8,-21,48,-3,2,-47,-82,-66,-10,12,10,28,-47,4,-29,-12,-21,-39,7,-14,-32,-25,-4,-12,-19,-16,-31,-15,-2,-11,-16,-6,2,-6,-23,-28,-43,9,-27,-20,-11,1,-22,-16,-16,-1,-82,-39,-7,6,-14,0,1,9,-12,18,8,11,4,24,-3,25,21,5]]]],["臺北市南港區",[[[6920,3312,-23,31,-3,28,-22,26,-5,18,-20,5,-40,34,-10,50,2,25,67,19,74,52,50,-11,91,10,24,15,22,29,11,2,62,-25,42,-61,-8,-9,-18,15,-11,1,-3,-8,7,-23,-44,-27,-3,-14,29,-59,25,-31,33,-27,15,2,31,-12,7,-16,33,6,6,-9,8,2,30,-13,20,-17,59,-26,9,-14,13,6,22,-10,16,5,33,-7,57,30,40,-9,11,4,-11,-21,6,-18,-5,-13,-8,-15,-13,-5,-21,7,-31,-2,-38,12,-39,-4,-37,-23,-13,19,-19,10,-22,-11,-32,6,-19,-9,-1,8,-32,16,-16,-11,-19,-46,-20,-4,-36,-22,-28,11,-30,0,-14,13,-27,-6,-30,8,-11,10,-11,-15,-41,-3,-16,-41,-52,-6,-22,11,-16,-9,-18,3,-4,-6,-34,-9,-80,-9,-19,14,4,11,35,32,17,6,16,55,16,26,46,31]]]],["新北市雙溪區",[[[9716,2951,-6,-19,-31,-17,-19,-20,-22,-40,13,-11,-4,-13,-23,-15,2,-20,-7,-18,4,-28,-10,-2,-4,-12,8,-59,-10,-17,6,-23,-27,-4,-42,-17,-4,-16,-14,-4,-22,16,-16,-12,-17,3,-14,-9,-5,-17,-16,-6,-6,-20,-16,-8,4,-32,-11,-32,-15,-15,-2,-18,11,-29,15,-8,10,-17,41,-15,12,-24,0,-16,14,-24,-2,-10,48,-24,-3,-28,-80,-57,-19,-37,-14,-6,-27,-24,-32,-43,-31,-18,-15,-17,-37,5,-11,-9,-15,8,-71,-26,-68,38,-11,-13,0,-16,-44,-11,-15,-13,-12,6,-12,-8,-33,-1,-17,7,-20,-18,-18,-1,-21,26,-2,11,-14,7,-17,20,-19,4,-21,92,-25,23,-34,16,25,33,13,53,34,27,-3,24,10,10,3,29,32,32,-18,45,33,63,13,5,10,20,0,6,-20,12,-1,21,-10,28,6,18,-1,22,15,19,-3,40,20,29,2,42,-4,22,-9,12,0,23,-18,5,-45,-5,-14,-11,-37,1,-19,17,-37,17,-15,31,-46,8,-20,30,-29,11,-12,26,53,37,23,5,14,14,21,8,24,33,22,6,-6,15,15,26,18,7,4,10,19,15,2,42,38,34,5,15,40,8,66,65,44,8,8,7,21,0,20,33,1,26,34,31,24,8,13,-5,10,12,25,6,24,33,17,-1,13,-10,19,0,9,6,27,-4,16,-10,21,3,8,31,-9,7,-1,21,-22,46,-12,14,9,18,-8,10,0,29,-9,22,28,47,-2,23,70,53,16,27,-1,14,23,19,9,21,34,45,42,0,19,60,40,22,13,-10,32,2,47,-14,5,-10,15,-3,37,0,19,12,13,-4,10,-12,6,-16,-11,-45,24,-43,-12,-62,4,-21,24,-23,17,1,12,-6,2,-21,40,-63,9,-30,0,-32,26,-41,-17,-21,5,-33,-18,-23,2,-9,22,-7,5,-20,20,-1,43,-19,-27,-69,1,-16,-20,-28,17,-38,-6,-6,-3,5,-10,-3,-23,-34,-15,-3,0,-15,26,-9,3,-19,-40,-23,-19,8,-46,-13,0,-18,-20,-14,2,-30,-28,-32,-7,-49]]]],["新北市三峽區",[[[4875,1420,-25,-12,-5,-28,-12,-10,-24,-5,-30,-20,-43,-12,-8,5,0,12,-18,3,-9,9,-59,19,-41,1,-23,13,-25,30,-5,15,-81,19,-67,-25,-40,5,2,30,11,15,56,4,33,13,14,-2,3,10,8,-25,17,4,-5,8,28,-5,-8,15,14,0,14,27,32,-2,2,8,-4,6,-21,6,-22,36,-39,10,-11,10,-11,14,-10,35,-13,13,8,12,36,7,12,13,25,10,13,24,-10,15,1,15,-14,3,-15,18,-34,1,-15,13,-10,58,-36,22,11,46,-17,-3,-19,11,-49,-19,-5,17,-11,3,13,28,-2,19,6,6,-6,6,-14,4,-12,-20,-34,-19,-69,43,12,12,4,22,21,11,22,25,0,20,-26,7,-11,27,-22,9,-7,14,-20,15,70,69,34,14,75,4,85,62,45,52,106,57,23,33,9,-5,29,23,46,-7,63,31,31,-63,23,7,37,-3,52,14,27,-2,16,13,13,1,8,-8,-9,-10,14,-21,33,19,21,38,49,39,12,-11,-2,-33,12,-44,-6,-16,43,-2,12,-21,28,-18,21,12,56,-4,16,7,36,1,27,18,11,-8,26,-46,55,20,24,23,35,18,26,23,33,4,15,7,5,12,14,-2,12,-67,22,-18,-12,-22,3,-12,42,-10,43,-25,16,5,33,-4,49,-22,19,2,45,-8,11,-17,-6,-18,9,-17,7,-6,14,1,19,-33,20,-19,-12,-45,-13,-13,6,-12,-8,-17,15,-34,16,-15,-27,-22,-34,-10,-7,-11,6,-10,-21,-11,-38,-64,-15,-7,-12,-20,-23,-18,-4,-42,-22,-26,-10,-24,28,-15,6,-13,19,-14,6,-16,15,-10,-15,-46,27,-38,27,0,23,12,30,-8,43,-54,4,-39,11,-12,19,-6,8,-13,-3,-63,-6,-20,-13,-18,-3,-32,-41,-20,-36,-3,-28,-27,-2,-31,-33,-49,18,-10,18,-28,-4,-19,-22,-21,-30,3,-51,-26,-10,-31,-32,-31,-73,-19,-24,-37,-41,-27,10,-57,-4,-7,-20,-7,-24,2,-11,-11,-44,-8,-77,52,-12,29,9,27,0,23,-10,24,3,22,-7,43,-43,14,-27,18,-26,37,-17,11,-3,27,-14,26,-67,2,-8,31,-23,33,18,36,-53,31,-15,20,-61,29,-12,-14,-16,-6,-19,2,-9,10,1,9,-25,3]]]],["新北市金山區",[[[7425,5165,-18,-8,-30,0,-75,-40,-63,-55,-18,-28,-23,1,-31,-25,-35,-45,-13,3,-13,-22,18,-14,-5,-17,-10,-5,4,-8,-4,-30,-8,-8,-8,-26,-20,-23,-4,-40,-12,-10,-17,-3,-9,-24,-23,-33,-34,-33,-7,-16,-86,-26,-45,21,-4,7,-43,-2,-19,15,4,31,43,36,18,30,-26,50,19,25,-9,21,11,12,0,10,10,2,-2,32,-11,11,11,15,-33,8,-13,-13,-34,15,-26,-6,-14,4,-16,27,-41,16,-13,13,2,18,-15,30,-8,36,-35,7,32,40,19,-2,16,10,20,33,34,22,66,5,32,24,9,21,-4,30,23,48,64,50,39,42,39,11,19,32,3,23,36,39,65,11,54,-6,28,46,-7,7,1,12,-11,26,6,8,-6,5,4,13,-13,18,11,13,7,50,16,8,14,18,89,-90,44,-68,18,-99,-20,-96,21,-37,12,-7,8,7,2,-8,-6,-5,8,-11,54,-39,18,-2,8,12,9,-4,-14,-10,28,0,-17,30,9,-9,34,11,13,-5,-13,-23,25,-12,-21,-34,5,-7,-10,-3,-10,-22,-42,-11,-23,-15,4,-17,-9,-2,3,-7]]]],["新北市永和區",[[[6086,3025,3,17,-52,28,-57,20,-29,-7,-11,9,23,4,34,19,88,94,29,9,58,-13,31,-16,57,-73,55,-25,24,-57,-27,-30,-7,-24,9,-26,-47,0,-8,22,-88,-20,-36,-22,-13,2,28,44,-9,18,9,20,-5,21,-20,4,-39,-44,-22,-1,13,25]]]],["臺北市北投區",[[[6116,3978,-32,-20,-74,8,-37,16,-8,121,-14,25,-36,21,-33,4,-147,-45,-46,1,-28,13,-50,38,-23,69,25,1,35,13,-5,33,14,41,33,39,28,19,9,19,38,34,2,11,42,32,20,31,46,12,1,16,48,74,64,46,13,33,17,11,-1,19,9,20,22,-1,10,-21,13,1,33,-18,9,0,22,16,64,-17,27,54,-8,45,42,38,74,6,13,9,11,22,52,6,18,17,5,48,14,18,34,24,9,1,17,-10,19,17,0,20,-10,11,1,14,14,9,19,42,19,3,23,14,33,-5,25,-68,-2,-17,12,-13,40,-15,18,-29,43,-1,-5,-7,-22,-5,-13,-10,-6,-15,-45,-30,12,-25,-6,-6,4,-17,-8,-6,0,-11,-12,-7,-5,-25,-29,-12,-17,-25,2,-15,20,-37,-23,-75,-50,-25,-26,-57,-31,-30,-12,-65,-10,-14,-18,-9,-3,-9,-34,10,-11,-13,-13,3,-8,-11,-27,-13,-16,0,-15,-17,-21,-4,-10,-27,8,-6,2,-64,-15,-11,-3,-20,-31,-9,-7,-27,-10,-7,-11,-23,14,-17,8,-32,-5,-12,-25,-7,-4,-14,-12,-6,1,-20,-14,-26,-16,-12,-12,-36]]]],["新北市八里區",[[[5068,4221,-21,5,-24,-21,9,-4,0,-7,-21,-13,-1,-30,-10,-18,8,-4,9,-25,-4,-12,8,-28,-19,-1,23,-25,-9,-5,3,-22,-11,6,17,-27,-7,-11,22,-25,-10,-5,0,-19,-11,-11,-12,-2,-4,-21,26,-11,-7,-1,-2,-9,-23,3,-3,-13,5,-11,-6,3,-7,-16,-13,4,-1,-16,14,-9,3,-9,-27,9,-7,18,-17,-37,-9,-3,-5,15,12,28,-8,4,-1,19,-25,5,-2,12,28,-6,1,15,17,-9,-5,-6,5,-14,16,10,-2,34,7,3,2,23,-6,4,5,9,-4,7,6,5,-15,3,6,6,-11,11,7,6,-4,20,-18,19,6,8,-11,4,0,15,-3,-12,8,-31,-11,7,-1,-9,-6,4,-23,57,-14,7,-9,20,-19,4,13,19,-11,12,5,23,-26,-2,-19,18,-13,2,-32,31,2,16,-23,8,-5,24,-17,12,-38,64,-17,17,-13,58,15,-6,36,14,11,15,34,0,41,10,49,22,0,5,2,-4,12,4,-1,6,7,-4,9,5,-2,5,4,-4,23,12,-20,42,38,161,110,-92,29,16,34,45,-34,31,34,-30,36,35,9,20,40,50,71,-42,88,-37,61,-39,52,-42,46,-49,34,-79,43,-204,18,-19,22,-82,-19,-35,-6,1,1,15,-18,2,-13,17,0,12,7,4,-4,7,-27,8,2,15,-14,-7,-27,1,-14,19,-18,9,-43,1,-19,18,-20,5,-17,19,-29,6,-16,11,-19,-3,-35,9,-12,27,-17,-8,-19,-19,-9,5,-46,-4,3,-46,-12,-21,-22,-2,-27,-18]]]],["新北市泰山區",[[[5324,3408,-66,-77,-17,-13,21,-16,-28,-9,-14,11,-7,-16,-31,15,-16,-1,16,34,-14,12,-12,2,-8,-6,-21,8,5,36,-17,6,5,10,-4,5,-9,-1,1,8,-13,-8,10,18,-14,16,-63,15,-29,-8,-3,11,-19,3,17,15,-8,3,-26,5,-16,-10,-4,27,45,-18,-9,20,10,5,12,-16,9,20,-32,1,-46,25,-19,-4,16,15,-17,-6,-1,-12,-9,-5,-6,1,2,6,-51,-9,14,5,17,19,-18,18,-1,13,30,-12,-1,14,12,8,-20,6,13,10,19,1,2,7,-29,1,1,15,-11,-5,-8,7,-35,-4,-7,14,-20,5,-3,13,28,0,2,19,-6,6,6,6,-4,8,-16,2,-2,5,-11,1,-7,-6,0,7,-19,17,18,-6,54,-4,13,-17,5,26,18,3,3,-4,-11,-2,1,-6,5,-16,12,-10,-5,-10,10,-1,6,2,-1,13,19,0,5,3,-3,6,44,29,8,-7,-1,-18,-15,-20,11,-7,-19,-12,26,-11,27,-3,7,-8,-4,-15,26,5,7,7,1,-17,18,7,2,13,-24,13,-6,15,3,7,18,-1,13,7,-2,15,-19,-1,-26,20,6,-22,-7,3,-28,-21,7,10,-2,37,5,11,-12,27,40,-16,25,1,17,9,38,-3,42,-34,11,-17,18,-8,22,-8,39,4,72,-4,9,-5,4,-24,30,5,25,-22,13,13,-4,16,19,-2,6,7,14,-4,6,17,27,3,1,-49,28,-13,-10,-8,6,-19,-10,1,-3,-14,-8,5,-7,-8,-10,8,-3,-14,-45,-15,-8,-10,9,-22,-1,-13,10,-2,15,-44,-21,-7,19,-20,1,-35,-14,-1,-31,18,-7,-43,-40,22]]]],["新北市汐止區",[[[7314,3355,-12,-4,-7,16,-31,12,-15,-2,-18,19,-12,5,-28,34,-29,58,3,15,45,29,-8,21,3,8,11,-1,18,-15,9,5,-35,59,-18,14,-29,11,7,20,11,-7,-3,24,39,20,-9,36,10,16,12,-1,4,24,17,9,2,8,-12,-6,6,9,-2,12,17,17,15,4,5,9,-5,13,11,19,-4,16,-22,24,3,10,-12,22,11,24,-7,9,-35,4,-46,37,-20,28,-50,13,-41,21,-79,16,-9,6,-20,40,20,27,14,39,9,2,10,15,9,42,10,2,8,-7,10,5,30,32,12,29,28,13,48,42,5,13,22,-6,55,14,23,0,16,-47,41,-26,6,-14,18,-6,34,3,49,-30,17,-43,-2,-12,15,-11,-5,-21,5,-54,40,-40,20,-49,-3,-12,-17,-2,-13,-15,15,-14,3,-20,52,-33,-2,-17,20,-7,7,-11,25,-7,9,-15,28,-1,18,-13,15,-22,61,-29,48,45,17,9,7,-3,5,-9,-1,-24,-17,-4,6,-24,-15,-23,13,-25,12,-1,69,-53,18,0,19,-14,44,-2,30,-27,48,5,23,-13,28,11,30,3,54,-42,13,-23,29,-14,5,-15,36,-4,10,-21,30,-28,-27,-26,-3,-13,-26,-11,-22,-1,-45,-52,-18,-13,6,-25,-8,-30,-25,-14,-9,-14,-41,7,-51,-21,-15,19,-20,1,-28,11,-14,18,0,9,8,6,-5,23,-20,3,-15,9,-39,-3,-22,-14,-20,-1,-30,-26,-29,-12,-11,-15,-50,-4,-14,-17,-49,11,0,-39,-11,-4,-40,9,-57,-30,-33,7,-16,-5,-22,10,-13,-6,-8,14,-60,26,-20,17,-30,13,-8,-2,-9,10]]]],["新北市淡水區",[[[5408,4627,-75,49,-88,37,-71,42,14,19,-24,33,-121,24,-3,8,6,22,-7,9,10,28,60,9,9,0,4,-8,20,2,25,14,23,3,4,8,-16,17,9,8,-4,23,64,105,40,44,22,36,67,21,-3,17,36,87,14,12,12,29,-1,17,27,62,-2,15,44,25,45,-4,8,-8,14,-1,4,-19,14,-9,27,-2,23,-10,39,1,6,-6,10,13,39,-17,3,-7,17,2,140,-58,30,1,44,-16,11,-10,-14,-23,4,-11,9,-7,23,-1,16,-14,-12,-22,-21,4,3,-13,-23,15,3,-32,20,-30,-8,-22,-17,8,-31,-26,-14,9,-6,-17,-42,1,-17,-30,13,-10,2,-10,-13,-11,10,-9,9,2,-1,-7,16,-9,7,-15,-5,-11,-31,-12,-2,-18,60,-12,15,-11,0,-17,17,-2,7,-20,54,18,18,-2,6,-19,35,-9,10,-11,-1,-12,24,-1,40,-35,56,-17,27,-42,-3,-15,6,-17,-25,-55,-66,16,-22,-16,-9,0,-33,18,-13,-1,-10,21,-22,1,-9,-20,1,-19,-17,-11,-14,-33,-63,-46,-48,-74,-3,-17,-44,-11,-12,-22,-50,-41,-2,-11,-38,-34,-10,-20,-27,-18,-34,-41,-13,-39,5,-33,-37,-13,-23,-1,-2,17,-17,16,-42,201,-23,64,-40,51]]]],["基隆市仁愛區",[[[8349,4133,-29,2,24,40,-2,11,6,7,-1,13,-12,12,-4,41,22,32,22,-3,5,22,31,47,24,-12,-15,-27,58,-31,59,-6,18,-29,-36,-64,8,-4,-13,-39,4,-35,-39,-21,-22,-29,-33,9,-16,-7,-15,4,-3,48,-9,6,-3,12]]]],["桃園市中壢區",[[[3249,2416,-9,18,-15,5,-3,12,12,25,-3,19,-17,21,5,10,-11,13,-12,-17,-12,5,-3,8,-24,-7,-21,20,-4,13,-23,1,-33,13,-131,-3,-27,18,-5,14,-13,1,11,53,0,43,-7,12,-34,-26,-29,-10,-22,17,-30,2,-9,-81,-9,-8,10,-9,-11,-6,-113,-15,-43,41,-64,13,-35,19,52,64,21,19,22,8,13,50,16,32,45,57,-12,24,12,8,1,11,-35,99,-1,38,-28,44,-9,38,8,69,-12,37,3,11,48,23,27,-6,34,1,13,-9,26,7,14,-27,14,-7,-2,-7,17,-9,16,27,9,33,25,-24,4,-18,-3,-24,18,-20,2,-36,6,-5,25,29,34,-6,0,51,12,32,12,2,21,-29,12,19,14,7,69,-25,-17,-23,18,-27,-17,-22,27,7,-10,-46,21,-13,-14,-28,15,-14,-8,-31,19,-31,20,24,10,0,-7,13,-1,44,8,4,-10,18,-36,30,8,8,13,-9,16,16,-8,13,26,26,13,-10,9,6,6,-5,8,8,27,-22,14,14,11,-9,13,27,0,-29,-20,-24,-4,-14,8,-22,-6,-24,4,-34,18,-22,15,-5,6,10,20,4,-8,22,8,5,33,0,5,8,15,-2,38,15,62,14,30,-1,13,-20,6,3,13,-30,26,-20,34,-80,-4,-22,12,-16,-4,-9,8,0,17,-38,1,-17,19,-37,7,-48,13,-18,4,-17,-5,-6,6,-5,4,-23,-13,-4,19,-17,4,-47,-13,-32,26,-75,-1,-30,-36,-125,-14,-22,-29,-19,2,-27,-33,-8,-60,-29,-69,-18,-1,5,-27,6,-5,18,-30,-1,-9,22,-15,-6,-26,21,-8,-4,-18,4,-1,23,-9,16,-28,21]]]],["桃園市大溪區",[[[4210,1220,2,-16,-22,-20,10,-8,17,-40,3,-53,-57,-49,-43,21,-62,43,-11,2,-26,-17,-27,-1,-44,16,-87,64,-31,-4,-36,9,-47,-16,-63,-2,-37,-9,-2,-11,12,-53,-13,-18,-17,-7,-24,-1,-41,14,-32,43,-101,-20,8,54,43,59,51,40,21,74,43,50,14,39,66,87,-2,25,-32,75,-16,-9,-14,8,2,11,-27,47,-37,-18,-24,-27,-11,4,-13,-12,-9,3,-14,-13,-23,16,32,90,-1,62,11,23,9,47,2,12,-8,4,6,12,-3,18,-12,-8,2,63,12,38,17,22,1,53,9,35,-4,17,12,23,27,26,-3,23,63,16,12,15,16,7,1,8,23,12,3,21,14,7,4,14,33,35,0,-21,16,8,11,-2,-9,-18,15,-22,7,-23,-10,-12,15,-4,33,11,13,-10,10,1,91,42,16,2,19,-14,10,17,10,-8,15,7,161,136,24,-37,25,-11,5,-16,7,2,13,-10,-11,-33,111,18,66,-13,-46,-36,-72,-2,-32,-13,-72,-70,20,-15,7,-14,22,-9,11,-27,26,-7,0,-20,-22,-25,-21,-11,-4,-22,-12,-12,69,-43,34,19,12,20,14,-4,6,-6,-6,-6,2,-19,-13,-28,11,-3,5,-17,49,19,19,-11,17,3,-11,-46,36,-22,10,-58,15,-13,34,-1,15,-18,14,-3,-1,-15,10,-15,-13,-24,-25,-10,-12,-13,-36,-7,-8,-12,13,-13,10,-35,11,-14,11,-10,39,-10,22,-36,22,-6,3,-11,-34,-1,-14,-27,-14,0,8,-15,-28,5,5,-8,-17,-4,-8,25,-3,-10,-14,2,-33,-13,-58,-5,-13,-34,-28,-5,1,-29,-12,1,3,-38,-18,-38,10,-28,-7,-4,-3,-29,32,-5,-22,-14,3,-10,-10,5,-14,-3,-1,-7,-17,4,0,-19,6,-5,-24,-7,-6,-16,-9,3,-3,10]]]],["桃園市觀音區",[[[2279,2982,-45,-36,-30,-6,-9,6,-27,-11,-11,-21,-43,-47,-11,3,-32,29,2,8,-14,21,-11,39,-52,-4,-10,18,-10,4,-20,25,-10,-7,-15,21,-15,-2,-12,12,-33,-25,-25,25,-34,10,-25,27,-64,-12,11,-25,-11,1,-38,-19,-31,42,-11,28,-29,6,0,21,-60,19,-42,26,-8,-11,-26,-1,-7,17,-23,12,-27,-19,-27,18,-42,0,-85,-94,-71,-6,50,60,43,75,96,100,53,38,50,61,73,54,82,27,78,10,101,50,45,15,33,66,39,-2,-1,6,7,-3,14,9,43,36,91,36,157,56,191,38,31,14,79,17,5,-41,-4,-24,-16,-3,-16,-16,48,-49,-3,-14,10,-10,-23,-19,1,-37,14,-23,-14,-17,38,-55,26,-13,-8,-31,10,-21,56,-24,-22,-45,-70,-96,39,-17,0,-17,-11,-6,-3,-10,12,-38,-8,-69,9,-38,28,-44,1,-38,35,-99,-1,-11,-12,-8,12,-24,-45,-57,-16,-32,-13,-50,-22,-8,-46,-46,-27,-37,-19,-9,-22,8,-21,40,-39,4,-47,26,-40,66,-11,6,-16,26,7,12,-21,31,0,25,6,11,-9,13,3,17,16,-2,9,14,-11,30]]]],["基隆市安樂區",[[[8264,4159,-2,-15,-11,-2,-7,-10,-1,-12,-32,-1,-2,15,-22,24,-27,-4,-19,14,-7,-6,-24,17,-28,38,-30,-8,-22,2,-4,53,-22,24,-3,51,-23,-1,-21,31,-68,28,-29,38,-49,22,11,21,1,27,-26,13,0,26,-21,4,8,26,26,18,17,2,5,13,16,-6,25,15,15,25,22,5,3,17,76,9,2,17,18,4,13,42,44,5,33,25,1,-24,-12,-3,-3,-11,16,-27,-19,-11,5,-13,-14,-16,13,-8,26,-3,14,8,25,-34,-1,-12,-9,-7,-42,-19,15,-39,-6,-15,11,-10,6,-32,23,-9,12,-45,49,-41,4,22,14,-17,8,10,-3,4,13,9,18,-6,7,-12,43,-28,35,-39,2,-28,14,-16,-13,-2,-20,-32,4,-41,12,-12,1,-13,-22,-51,-21,-11]]]],["新北市坪林區",[[[8807,2232,-26,-36,34,-16,25,-24,21,-90,19,-5,17,-20,15,-8,1,-10,21,-26,-16,-2,3,-19,10,-12,-25,-18,-6,-11,-42,-10,-2,-19,-26,-2,-13,-9,6,-27,-1,-76,21,-16,9,-35,-9,-5,-11,6,-24,-19,-35,-15,-1,-12,-20,-29,5,-8,-3,-8,-42,-2,-21,10,-13,-5,-4,-4,4,-13,-17,-12,-17,-26,-11,2,-5,12,-12,-11,5,-14,-11,-10,0,-11,-67,-3,-7,-4,-1,-10,-29,-5,-26,5,-6,-13,-13,-7,-32,-5,-10,0,-35,27,-16,5,-33,2,-29,-6,-34,-22,-20,-23,-31,-9,-15,-12,-11,-21,2,-10,-39,-11,-15,-27,-53,-12,-6,-15,-9,-3,-34,35,-110,18,-11,9,-13,31,-22,3,-3,12,-8,4,-21,-6,-31,8,-5,-6,-38,-6,-7,7,-32,-8,-9,4,-33,-13,-42,24,-16,-8,-45,16,-23,-15,-22,17,-20,38,-73,42,-10,13,24,32,12,39,20,6,6,10,25,12,-2,16,10,42,-11,17,-24,8,-10,14,19,46,2,37,11,16,-15,19,-15,8,-10,25,27,22,12,0,3,9,73,30,17,20,-4,17,44,31,-19,28,0,18,-10,20,5,10,24,12,33,7,39,22,15,15,19,-1,12,7,-17,10,-14,34,-31,19,-15,17,-6,88,-26,9,-3,50,-8,9,-2,43,12,24,25,-1,64,18,49,5,25,28,23,12,22,42,11,7,29,-3,25,13,44,2,15,18,22,4,24,38,29,19,34,-8,11,6,38,-16,19,6,4,35,28,-9,33,11,18,-4,31,4,45,13,28,-7,5,18,6,1,13,22,8,-7,27,6,17,-46,21,1,22,-10,38,29,16,-4,25,10,24,-8,17,16,19,4,16,18,35,-11,40,0,41,59,40,-17,22,-18,24,-2,24,13,61,3,2,-26,9,-12,4,-22,-2,-42,-20,-29,3,-40,-15,-19,1,-22,-6,-18,10,-28,1,-21,20,-12,0,-6,-10,-20,-13,-5,-32,-62,17,-46,-33,-34,-2,-27,-10,-10,3,-23,-34,-28]]]],["新北市烏來區",[[[6921,877,13,-27,-1,-29,10,-10,1,-21,32,-68,-20,-29,7,-24,-29,-21,-26,-35,0,-25,-14,-16,-4,-20,13,-40,20,-9,23,-1,6,-14,9,-5,-14,-19,-22,-5,-8,-10,2,-16,30,-25,4,-12,-11,-46,8,-25,-13,-20,1,-10,40,-2,-3,-16,-69,-41,-32,-34,-36,3,-41,18,-14,1,-7,-16,-3,-59,-25,-48,-26,5,-18,34,-26,-24,-21,1,-32,11,-43,-19,-18,3,-20,-28,-38,-27,-33,6,-41,-7,-24,-33,-29,-25,7,-18,3,-32,-13,-8,0,-38,-9,-18,-72,-8,-16,14,-8,-5,-1,-32,-21,-8,-11,-12,-90,-1,-11,11,-20,1,-44,-21,-23,-28,-26,-2,-34,-14,-26,-28,-37,-19,-48,20,-32,-14,-29,5,-18,-5,-40,55,-6,44,-15,16,-9,45,18,37,-6,26,-32,7,-15,-6,-69,54,-124,41,-11,28,-3,37,-39,30,-34,79,-5,30,-27,5,-41,35,12,32,-24,35,-3,40,-7,14,-16,13,-2,20,-15,26,5,18,-7,16,0,20,-29,49,2,22,-25,14,29,58,52,41,55,18,37,54,18,14,17,1,20,13,14,23,20,17,-7,23,15,14,5,20,51,9,4,7,-10,57,41,27,24,37,73,19,32,31,10,31,51,26,30,-3,23,23,3,17,-18,28,-17,13,32,46,2,31,28,27,36,3,41,20,3,32,16,25,2,43,7,18,-10,27,-31,19,-3,37,-44,56,65,63,43,18,27,26,22,7,48,39,89,34,29,24,56,3,31,15,35,29,23,37,40,20,13,-1,32,-33,30,-20,44,30,39,3,20,-9,21,-1,50,-38,5,-97,19,-2,20,7,15,-10,14,3,20,-21,26,3,77,-18,62,-38,22,-31,40,-2,16,-21,34,-8,82,-2,62,-24,24,12,17,-4,6,14,11,3,42,-17,43,-1,21,-21,22,-4,11,-15,37,39,24,7,20,-14,14,1,10,-13,73,-42,20,-38,22,-17,23,15,45,-16,16,8,42,-24,33,13,9,-4,32,8,7,-7,38,6,5,6,31,-8,21,6,8,-4,3,-12,22,-3,13,-31,11,-9,110,-18,34,-35,-58,-45,-25,13,-10,-14,-18,4,-2,-47,-39,-26,-21,-4,-22,-15,-2,-12,19,-15,4,-12,-11,-22,3,-21,-10,-11,-10,1,-11,13,-31,-6,-19,7,-40,-35,-19,6,-10,-6,-53,39,-4,-12,-56,-42,-19,-7,-4,-11,-76,5,-26,17,-18,-3,-13,13,-12,-37,-12,-10,-30,11,-32,3,-16,-13,-68,-4,-17,-10,-29,8,6,-35,-5,-25,-11,-12,12,-49,-5,-16,-45,-26,-42,14,-35,-7,-37,6,-40,-47,-27,3,-40,-17,-55,-4]]]],["宜蘭縣頭城鎮",[[[9274,1408,-43,-174,-28,-161,-34,3,1,13,-12,15,6,28,-22,49,18,41,43,59,-17,38,-15,-13,-39,-4,-10,-27,-40,-18,-23,7,-48,-4,-35,15,-12,14,-6,19,-50,20,-9,20,4,9,-57,60,-59,32,-22,42,-18,17,3,30,13,11,4,13,-38,4,-10,-9,-25,0,-18,-11,-23,-27,-24,6,-14,-12,-7,3,-25,-10,-35,13,-26,-4,-48,22,6,13,26,-5,29,5,1,10,7,4,67,3,0,11,11,10,-5,14,12,11,5,-12,11,-2,17,26,17,12,-4,13,4,4,13,5,21,-10,42,2,3,8,-5,8,20,29,1,12,35,15,24,19,11,-6,9,5,-9,35,-21,16,1,76,-6,27,13,9,26,2,2,19,42,10,6,11,23,16,2,8,-11,7,0,22,32,-1,20,18,17,-7,33,1,12,8,12,-6,15,13,44,11,0,16,11,13,68,-38,71,26,15,-8,11,9,37,-5,15,17,31,18,32,43,27,24,14,6,19,37,80,57,3,28,-48,24,2,10,-14,24,0,16,-12,24,-43,17,-8,15,-16,9,-10,28,2,18,15,15,11,32,-4,32,16,8,5,18,17,8,4,16,13,10,19,-3,16,12,22,-16,14,4,4,16,65,21,27,-16,22,1,58,-15,15,8,30,0,18,12,16,1,30,14,34,0,27,-10,10,16,76,23,22,22,7,23,27,28,13,3,13,-13,11,19,18,6,20,-11,7,21,39,24,41,-7,18,11,19,-11,41,16,17,-6,21,14,29,-1,10,22,30,-1,12,19,17,-5,7,12,19,8,16,18,33,-15,27,16,47,0,28,-10,18,11,30,-7,31,-47,-38,-12,-39,8,-38,-26,-28,-3,-1,-8,-4,5,-26,-6,-43,-20,-6,-18,-14,0,-5,-16,-9,-1,1,6,-11,-6,-20,4,-15,-4,-2,6,-106,-53,-32,-54,6,-14,-8,5,-9,-27,-11,-5,0,-39,-10,-4,-5,-11,-7,1,-11,-16,-22,-3,-21,-13,-12,1,-12,-8,5,-5,-4,-4,-7,5,-25,-25,-17,-4,-13,-30,4,-11,6,-1,-8,-10,4,-16,-13,8,-25,-7,-19,1,-9,9,-28,-2,-62,-37,-12,-19,-10,-59,6,-25,-21,-35,-4,-53,-17,-15,-8,-19,-30,-9,-15,-21,4,-5,-22,-12,-14,-17,0,-8,-23,-11,-7,-26,1,14,-15,-9,2,-6,-7,4,-25,-9,-15,-10,-20,-37,-34,-38,-91,-44,-6,-36,-25,-20,-56,-83,-73,-156,3,-4,-7,-4,-44,-94,-26,-82,-9,2]],[[10542,1509,20,-3,19,-12,17,-24,-1,-21,10,-12,-4,-7,25,-19,21,-6,2,-15,-22,-31,-14,-6,-44,15,-91,-15,-23,2,-47,23,-27,45,-40,33,1,11,9,-3,-1,8,65,-29,14,2,44,67,20,6]]]],["桃園市蘆竹區",[[[3742,3127,35,-55,26,-64,-11,-5,-37,-44,-3,-20,-10,-9,7,-28,-8,-20,-10,22,-19,3,-29,-17,-3,10,-35,-3,-47,-26,-18,42,-8,0,4,9,-12,16,4,22,-14,24,-12,43,-39,40,-8,23,-6,-3,-7,10,-20,43,-20,18,-40,60,-16,10,-25,52,-18,15,-12,2,-9,15,26,11,-5,39,25,17,-3,6,11,7,-8,34,64,39,16,-6,29,13,-13,11,19,17,-25,38,3,5,-6,10,27,15,29,5,-21,26,7,14,23,8,25,-13,49,30,29,24,1,28,16,5,8,10,7,28,17,2,6,-8,25,8,29,41,-1,16,-10,14,-60,23,-17,45,-22,32,-41,29,-16,47,-23,37,-16,112,-41,47,-1,17,12,7,2,12,33,-6,45,13,22,15,18,-12,74,-25,108,-21,36,0,5,-51,-12,-26,2,-7,23,-8,19,-18,31,1,14,-43,39,4,25,15,12,-5,9,-18,12,-7,1,-30,14,-17,77,-3,66,-25,11,-10,68,-5,31,-15,20,-27,82,-46,53,5,58,-19,9,-11,-9,-5,-5,5,-64,-11,55,-13,-28,-3,12,-17,-22,10,3,-17,17,-5,-16,-6,-18,3,-12,13,-4,-9,-7,7,1,-24,20,-5,-7,-8,61,11,9,7,10,22,5,-13,-5,-19,19,10,17,-12,-18,3,-12,-8,-6,-15,-8,3,-2,8,-7,-13,-17,-8,32,-6,24,-18,2,9,15,-2,0,-8,13,-7,-2,-17,-113,1,-36,-17,-105,-29,-56,-32,-4,-16,-16,-22,-13,0,-47,-28,-76,0,-7,-19,-47,-19,-93,26,20,-17,10,-18,12,-34,36,-62,11,-37,-62,-7,-5,-11,-22,-7,-12,-18,-18,-5,-19,-19,-12,3,0,14,-6,6,-16,0,-11,34,-67,-16,11,-23,-2,-12,-18,-12,-18,5,2,-24,-36,-20,5,-37,11,-9]]]],["新北市深坑區",[[[7407,3089,9,-11,-22,-19,0,-24,8,-9,48,-7,7,-35,-16,-18,-2,-14,-60,-1,-14,-15,-1,-10,14,-14,-7,-44,7,-34,13,-28,-16,-7,-8,-11,-29,-12,-87,-64,-51,-19,-7,12,-31,12,-19,18,-10,-1,-20,12,-61,-2,-50,25,-9,18,14,16,-8,61,19,15,2,24,-29,14,3,13,-13,15,24,40,0,26,-26,30,-20,4,0,46,7,29,10,13,-2,14,52,4,15,40,41,3,11,15,11,-10,30,-8,27,6,14,-13,30,0,28,-11,36,22,20,4,19,46,16,11,32,-16,1,-8,18,9,27,-6,0,-14,-10,-14,13,-22,6,-33,-6,-31,5,-10]]]],["臺北市中山區",[[[6289,3466,-42,12,-60,6,14,22,5,74,-16,64,8,59,7,28,20,40,25,-29,7,5,-13,52,2,16,7,4,8,-5,28,31,20,4,18,27,32,25,55,28,11,-11,16,-1,9,-13,26,3,20,11,18,0,8,6,13,-26,14,-12,23,-7,-4,-12,10,-23,14,6,18,-5,16,-36,17,-20,61,-19,21,-23,-11,-4,-8,14,-12,6,-72,-39,-55,24,-40,8,-3,-26,-31,-12,-5,-7,-102,2,2,-23,28,-5,27,-15,-5,-221,-79,-1]]]],["基隆市中山區",[[[8250,4418,-10,2,-13,-21,-14,17,-4,-22,-49,41,-12,45,-23,9,-6,32,-11,10,6,15,-15,39,28,10,23,18,1,10,-20,23,-4,14,31,1,12,12,4,-13,63,-8,10,6,21,-16,27,-6,8,4,24,-24,12,-1,12,-13,-10,-7,1,-9,-6,4,5,-8,48,27,10,-6,-2,-8,43,-26,-5,-4,8,5,-3,5,13,-7,18,5,14,-11,45,23,4,8,32,-82,-15,-62,-31,-31,-61,-37,-24,-36,-24,12,-31,-47,-5,-22,-23,18,-4,31,-25,29,-53,38,-6,11]]]],["臺北市信義區",[[[6761,3142,-10,-10,-27,4,-7,-19,-34,-26,-23,-10,-7,19,-17,13,-3,21,-32,39,-75,71,48,50,3,158,116,40,107,3,8,-42,39,-33,20,-5,5,-18,19,-21,6,-33,23,-28,-4,-12,-48,-34,-16,-26,-16,-55,-35,-20,-21,-29]]]],["基隆市信義區",[[[8484,4286,-22,9,17,26,42,16,49,7,6,-4,12,11,17,-1,26,17,38,-11,14,7,14,-10,17,20,8,0,43,69,42,8,24,-35,-4,-28,16,-19,4,-30,51,-16,19,-29,25,-18,4,-11,-4,-30,29,-21,6,-16,11,-4,-1,-9,-11,-7,1,-8,9,-2,-7,-6,-1,-18,-21,-6,-9,-11,-27,2,-17,-6,-45,60,-25,-16,-74,20,-11,13,-15,4,-15,-12,-22,-41,-28,-25,-36,9,-18,-10,-21,2,-23,-25,-45,7,-8,2,-5,23,14,50,-8,5,36,65,-18,28]]]],["桃園市龍潭區",[[[3261,1015,-45,-21,-7,36,-13,11,3,33,-12,12,9,32,-26,6,-21,-4,-21,-15,-33,-10,-14,-23,-34,0,-18,31,5,10,25,14,-28,19,-1,15,-8,3,11,9,-25,5,-15,-17,4,-9,-9,-2,-23,28,-106,60,-91,35,-31,4,25,44,-17,2,-7,11,-39,14,-11,-8,-24,22,-6,-3,-41,16,-16,-1,-7,13,-30,20,-5,14,-12,2,-3,18,-44,2,28,19,8,25,19,12,4,20,12,5,-8,12,6,15,-4,8,16,6,-4,5,14,9,11,-1,-9,12,8,-5,13,10,-11,14,4,8,-8,7,9,7,-14,56,-32,58,17,-1,3,9,21,-20,51,7,24,-4,23,-14,54,-1,6,18,-14,23,5,24,-5,28,23,12,-1,14,9,17,-4,9,10,20,11,9,22,0,8,7,51,-13,25,21,11,25,4,-4,9,10,2,-17,13,5,13,-15,-9,-13,2,-19,5,2,2,-5,72,17,7,-4,44,43,12,-14,39,-10,69,26,11,-4,-7,-22,7,-22,7,-4,-1,12,13,23,37,-5,-1,10,19,5,7,9,11,-12,12,-44,32,-15,7,-9,10,3,-1,7,16,3,0,7,20,-2,21,25,18,-22,28,0,5,-17,0,-19,-12,-11,2,-24,-6,-33,-6,-3,-1,-27,-14,-16,13,-5,25,26,9,23,16,86,12,8,3,-18,-6,-12,8,-4,-10,-58,-12,-24,1,-61,-32,-91,23,-16,14,13,9,-3,13,12,11,-4,24,27,37,18,27,-47,-2,-11,14,-8,16,9,32,-75,2,-26,-66,-86,-14,-39,-43,-50,-21,-74,-51,-40,-43,-59,-8,-54,-11,-19,-38,-21,-68,-10]]]],["新北市蘆洲區",[[[5684,3763,-34,15,-16,0,-55,29,-19,19,-7,16,-7,43,11,37,21,19,4,39,29,10,16,42,37,-15,147,-8,53,-23,47,-38,-71,-63,0,-40,-10,-6,-9,-22,-29,-33,-22,-13,-17,-39,-18,-5,-22,6,-17,27]]]],["臺北市中正區",[[[6205,3186,-25,16,-56,15,-1,23,-32,10,-50,50,1,13,25,53,30,107,18,14,5,12,54,-15,79,-8,76,-21,-2,-119,-55,5,-29,13,-17,-29,-9,-44,35,-48,103,-97,16,-23,-53,-26,-10,10,-48,19]]]],["基隆市中正區",[[[8482,4323,-20,-28,-42,24,34,57,78,51,22,30,12,54,-32,82,16,31,6,-2,6,-27,15,3,3,11,20,4,3,-9,17,-1,6,13,-10,6,20,4,-13,6,11,9,39,-15,-6,-7,18,3,13,-5,9,-16,22,8,75,-21,-36,1,-1,-9,-40,-24,11,-2,8,9,31,-48,22,17,21,-5,20,-11,11,-20,41,-14,22,2,18,-15,17,-1,4,13,19,1,22,-8,76,17,12,-14,-3,-12,-13,-4,-4,-12,-18,-6,-5,-12,7,-5,-15,-6,6,-9,-13,-5,8,-1,9,-13,2,-13,-18,-36,15,-8,15,-31,-2,-13,-15,-17,12,-21,-23,-35,-29,13,-7,12,-10,0,-9,10,-26,11,-4,11,-25,18,-19,29,-50,14,-5,32,-16,19,4,28,-24,35,-42,-8,-43,-69,-8,0,-19,-21,-12,11,-14,-7,-38,11,-26,-17,-17,1,-12,-11,-6,4,-49,-7]],[[8892,4937,-3,-16,-12,-8,-15,1,-32,-17,-14,3,8,30,22,19,24,9,22,-2]]]],["桃園市八德區",[[[3732,2290,-30,-30,-4,-14,-14,-7,-3,-21,-23,-12,-1,-8,-16,-7,-12,-15,-63,-16,3,-23,-27,-26,-11,-22,1,19,25,56,-5,21,-34,32,36,31,28,56,10,2,-3,27,29,19,13,20,35,113,3,44,-26,75,13,32,-4,47,-19,17,13,4,-10,29,15,4,1,7,46,35,49,29,11,19,23,20,46,24,6,-17,-13,-16,5,-25,-10,-16,8,-14,-11,-35,30,-47,31,5,12,-55,25,-22,3,-10,38,-7,3,4,-1,16,8,4,-7,3,-6,24,-11,13,12,33,1,24,15,33,31,-4,11,28,29,-8,-13,-36,29,-16,17,6,8,-8,16,27,14,-5,-3,-21,14,-10,9,8,17,-11,0,-6,7,10,21,-3,0,-9,11,-2,5,20,16,-13,1,-12,13,9,15,-7,6,9,12,0,31,16,7,-32,-20,-30,20,13,9,-10,-17,-14,11,-49,-11,-53,-1,-61,17,-23,19,-11,-7,-9,-64,-15,-83,-46,-142,-123,-37,-23,-11,8,-10,-17,-19,14,-16,-2,-91,-42,-10,-1,-13,10,-34,-11,-14,4,10,12,-7,23,-15,22,9,18,-11,2,-16,-8,1,21]]]],["新竹縣新豐鄉",[[[958,1683,-57,-65,-42,17,-14,-8,-4,-12,-9,1,-5,14,-31,25,-5,24,-26,18,-1,13,-16,8,-2,14,-23,5,-16,14,-18,-11,-3,16,-44,39,-15,7,-60,3,-31,10,-69,-13,7,36,43,69,9,47,63,75,56,129,18,60,34,67,123,115,54,-10,29,-33,24,-6,0,20,15,20,49,18,38,-9,14,31,28,31,26,-20,22,6,8,-17,31,-15,20,2,16,-14,21,10,43,-9,6,17,24,30,10,-1,10,-12,71,25,27,-31,18,9,39,-7,-1,-11,-18,-14,-18,-55,-68,-88,-44,-80,-34,-14,-4,-23,-20,-33,-28,-79,2,-9,-15,-21,-11,-33,4,-6,-3,-20,-11,-38,-12,-16,9,-8,-31,-16,-49,-48,-5,10,-6,-1,4,-9,-43,-31,-5,-13,-69,-60,6,-6]]]],["新北市土城區",[[[5471,2412,-24,-13,-24,-23,-56,-20,-25,46,-11,8,-27,-18,-36,-1,-16,-7,-56,4,-20,-13,-29,19,-12,21,-43,2,6,16,-12,44,2,33,-12,11,22,19,8,22,-6,50,7,28,-4,9,123,39,27,23,30,6,55,38,12,32,1,30,18,15,14,32,18,18,8,44,11,-4,7,7,15,-19,55,21,34,-21,18,48,14,5,6,-48,34,-11,8,-13,22,0,32,15,8,26,17,14,1,-19,9,-9,7,10,23,13,19,-10,5,-5,-5,-6,20,-14,28,-3,-22,-37,-31,-26,-2,-8,15,-39,13,1,21,-17,3,-17,12,-6,12,-22,-22,-6,3,-25,-4,-24,-8,-11,12,-19,-2,-11,-59,-29,-20,-18,4,-28,-8,-9,-36,-8,-9,-14,0,-14,-52,-41,-22,2,-18,-15,-16,1,-6,-13,-14,-7,-26,0]]]],["新北市新店區",[[[6406,1935,-14,2,-39,-19,-24,-38,-35,-29,-31,-15,-56,-3,-29,-24,-89,-34,-48,-39,-22,-7,-27,-26,-43,-18,-65,-63,-30,8,-23,-12,-27,0,-27,38,15,46,-15,10,-6,16,-19,14,-6,13,-28,16,10,24,22,25,4,42,23,18,12,20,15,7,38,64,21,11,-6,10,7,11,34,10,27,22,-16,15,-15,34,8,17,-6,12,13,13,12,45,-20,19,-19,33,-14,-1,-7,6,-9,17,6,18,-12,17,-44,8,-19,-2,-49,22,-33,4,-16,-5,-43,25,-43,10,-2,12,12,22,-22,18,-3,38,-10,23,18,21,25,-1,52,41,0,14,9,14,36,8,8,9,-4,28,20,18,60,32,27,-5,18,13,14,1,44,24,16,1,22,16,19,3,19,16,43,-9,23,28,-2,6,16,6,2,11,31,15,19,16,4,12,32,25,-7,14,21,39,29,12,47,-4,-10,-28,10,-12,97,80,20,32,18,-27,-1,-37,26,-10,47,5,6,-12,-6,-22,9,-11,20,-4,19,5,19,16,-1,18,18,-5,13,-20,-8,-39,6,-34,15,-9,9,-32,15,-13,9,-37,28,-36,29,0,21,-7,41,4,21,-4,18,13,3,15,40,-2,25,-15,36,-6,10,-13,30,2,24,12,9,-7,14,3,15,-27,23,-10,12,8,32,-3,35,20,31,0,10,10,14,-46,-4,-27,-25,-4,8,-41,-20,-24,6,-26,-5,-8,-53,7,-11,-20,-23,-5,1,-16,14,-17,5,-22,-21,-15,-9,-17,-4,-31,-24,-54,15,-35,1,-40,11,-25,2,-53,15,-17,-17,-2,-14,8,-12,21,-15,10,-33,4,-49,-31,-55,-24,-72,-4,-15,-22,-40,-28,17,-4,12,-16,25,-14,45,-15,24,-24,-4,-55,-16,-30,-2,-18,6,-19,9,-9,-10,-14,11,-24,-22,-43,-24,-3,-20,21,-14,-3,-15,10,-20,-7,-19,2,-5,97,-50,38,-21,1,-20,9,-39,-3,-44,-30,-30,20]]]],["新北市五股區",[[[5310,3689,-75,5,-42,-4,-37,16,-11,17,-41,33,-21,2,-4,12,-22,-6,-6,8,-11,-10,-19,2,14,6,2,13,15,11,-5,4,5,4,-21,2,2,12,-10,14,4,10,-9,5,21,7,4,-4,-9,0,3,-7,29,-14,21,-22,8,21,50,-37,-2,19,7,17,-21,-20,-5,16,-16,3,-18,21,2,15,-10,8,-2,15,27,17,-8,23,-12,-3,8,14,-26,27,22,-10,31,-32,-4,11,8,33,-17,-12,-7,4,-11,40,-9,-8,-11,11,3,13,-8,6,-1,10,-18,-19,-7,2,-5,50,-6,11,-13,7,1,26,-9,25,-8,4,10,18,0,29,22,13,0,8,-10,3,25,22,53,-16,27,18,22,2,12,21,-3,46,46,4,9,-5,34,27,14,-27,35,-9,19,3,16,-11,29,-6,17,-19,20,-5,19,-18,43,-1,18,-9,14,-19,27,-1,14,7,-2,-15,27,-8,4,-7,-7,-4,0,-12,13,-17,18,-2,-1,-15,6,-1,-17,-38,0,-18,54,-39,-16,-42,-29,-10,-4,-39,-21,-21,-11,-37,8,-46,16,-23,41,-25,85,-29,14,-25,-2,-12,-11,1,1,-38,-29,-20,-10,1,-4,-12,-9,22,-19,10,-14,0,-78,-34,0,-23,-16,-6,-16,-16,-23,18,3,7,-25,9,-2,52,-27,-3,-6,-17,-14,4,-6,-7,-19,2,4,-16,-13,-13,-25,22,-30,-5,0,13]]]]];
+  var DP = DIST.map(function(d){
+    return {n:d[0],p:d[1].map(function(rs){ return rs.map(function(f){
+      var xs = [], ys = [], x = 0, y = 0;
+      for(var i = 0; i < f.length; i += 2){ x += f[i]; y += f[i+1]; xs.push(120.9+x/1e4); ys.push(24.7+y/1e4); }
+      return {x:xs,y:ys};
+    }); })};
+  });
+  function inRing(r,lng,lat){
+    var c = false;
+    for(var i = 0, j = r.x.length-1; i < r.x.length; j = i++){
+      if((r.y[i] > lat) !== (r.y[j] > lat) && lng < (r.x[j]-r.x[i])*(lat-r.y[i])/(r.y[j]-r.y[i])+r.x[i]) c = !c;
+    }
+    return c;
+  }
+  function districtAt(lng,lat){
+    for(var a = 0; a < DP.length; a++) for(var b = 0; b < DP[a].p.length; b++){
+      var rs = DP[a].p[b];
+      if(inRing(rs[0],lng,lat) && !rs.slice(1).some(function(h){ return inRing(h,lng,lat); })) return DP[a].n;
+    }
+    return '';
+  }
+  var PEG = '<i class="pgsh"></i><svg class="pegsvg" viewBox="0 0 24 34" width="24" height="34"><g fill="#E05216" stroke="#fff" stroke-width="1.1" stroke-linejoin="round">'
+    + '<g class="ll"><rect x="8.4" y="21.4" width="3.3" height="9.1" rx="1"/></g><g class="lr"><rect x="12.3" y="21.4" width="3.3" height="9.1" rx="1"/></g>'
+    + '<g class="up"><path d="M7.4 11.6Q7.4 10 9 10H15Q16.6 10 16.6 11.6V21.8H7.4Z"/>'
+    + '<g class="al"><rect x="4.4" y="10.8" width="2.6" height="9" rx="1.2"/></g><g class="ar"><rect x="17" y="10.8" width="2.6" height="9" rx="1.2"/></g>'
+    + '<circle cx="12" cy="5.3" r="3.7"/></g></g></svg>';
+  var pegIcon = L.divIcon({className:'peg',html:PEG,iconSize:[24,34],iconAnchor:[12,32]}), peg, pegTxt = '', pegAnim, P = {}, popTmr, pend;
+  function setPose(h,H,sq,tk,th){   // h 離地高度；sq 蹲伏量；tk 收腳量；th 手臂上舉角度
+    var k = Math.min(1,h/(H||40)), s = (1-.25*sq-.55*tk).toFixed(3), dx = 1.4*sq+1.2*tk;
+    P.sv.style.transform = 'translateY(' + (-h) + 'px)';
+    P.sh.style.transform = 'scale(' + (1-.45*k) + ')'; P.sh.style.opacity = 1-.55*k;
+    P.up.setAttribute('transform','translate(0,' + (2.1*sq).toFixed(2) + ')');
+    P.al.setAttribute('transform','rotate(' + th.toFixed(1) + ' 5.7 11.6)');
+    P.ar.setAttribute('transform','rotate(' + (-th).toFixed(1) + ' 18.3 11.6)');
+    P.ll.setAttribute('transform','translate(' + (-dx).toFixed(2) + ',0) translate(10.05,21.4) scale(1,' + s + ') translate(-10.05,-21.4)');
+    P.lr.setAttribute('transform','translate(' + dx.toFixed(2) + ',0) translate(13.95,21.4) scale(1,' + s + ') translate(-13.95,-21.4)');
+  }
+  var E3 = function(x){ return 1-Math.pow(1-x,3); }, lp = function(a,b,x){ return a+(b-a)*x; };
+  // 立定跳遠：下蹲蓄力、擺臂起跳 → 空中收腳翱翔（地面位置等速、小人沿拋物線）→ 伸腿落地 → 緩衝後站直
+  function runPeg(from,to,H,dur,drop,done){
+    cancelAnimationFrame(pegAnim);
+    var tc = drop ? 0 : 240, tl = 260, ts = 220, T = tc+dur+tl+ts, t0 = performance.now(), thL = drop ? 130 : 70;
+    (function step(n){
+      var el = n-t0, h = 0, sq = 0, tk = 0, th = 0;
+      if(el < tc){ var u = E3(el/tc); sq = u; th = 25*u; }
+      else if(el < tc+dur){
+        var t = (el-tc)/dur;
+        peg.setLatLng([lp(from.lat,to.lat,t),lp(from.lng,to.lng,t)]);
+        if(drop){ h = H*(1-t)*(1-t); th = 130; }
+        else {
+          h = 4*H*t*(1-t); sq = Math.max(0,1-t/.15);
+          tk = t < .2 ? 0 : t < .4 ? (t-.2)/.2 : t < .7 ? 1 : t < .85 ? (.85-t)/.15 : 0;
+          th = t < .2 ? lp(25,150,E3(t/.2)) : t < .7 ? lp(150,120,(t-.2)/.5) : lp(120,70,(t-.7)/.3);
+        }
+      } else if(el < T){
+        var m = el-tc-dur;
+        if(m < tl){ var u2 = m/tl; sq = E3(Math.min(1,m/100))*(1-.3*u2); th = lp(thL,40,u2); }
+        else { var v = (m-tl)/ts; sq = .7*(1-E3(v)); th = 40*(1-E3(v)); }
+      }
+      if(el >= T){ peg.setLatLng(to); setPose(0,H,0,0,0); if(done) done(); return; }
+      setPose(h,H,sq,tk,th);
+      pegAnim = requestAnimationFrame(step);
+    })(t0);
+  }
+  function placePeg(e){
+    var ll = map.mouseEventToLatLng(e);
+    pegTxt = ll.lat.toFixed(5) + ', ' + ll.lng.toFixed(5);
+    rd.textContent = ll.lat.toFixed(5) + '°N, ' + ll.lng.toFixed(5) + '°E';
+    var near = me && map.latLngToContainerPoint(me.getLatLng()).distanceTo(map.latLngToContainerPoint(ll)) < 24;
+    cancelAnimationFrame(pend);   // 同一瞬間多點觸控時，只處理最後（最左側）那一次
+    pend = requestAnimationFrame(function(){   // 延後處理，不干擾 Leaflet 的拖曳/縮放事件
+      try{
+        map.closePopup(); clearTimeout(popTmr);
+        var done = function(){    // 落地後顯示行政區（約 2 秒，或下次移動時消失）
+          var nm = districtAt(ll.lng,ll.lat), tx = (near ? '我在這裡！' : '') + (near && nm ? '<br>' : '') + nm;
+          if(!tx) return;
+          var pop = L.popup({className:'tip',closeButton:false,autoPan:false,offset:[6,-28]}).setLatLng(ll).setContent(tx).openOn(map);
+          popTmr = setTimeout(function(){ map.closePopup(pop); },2000);
+        };
+        if(peg){
+          var from = peg.getLatLng(), d = map.latLngToContainerPoint(from).distanceTo(map.latLngToContainerPoint(ll));
+          runPeg(from,ll,28+Math.min(70,d*.22),Math.min(1100,450+d*.9),false,done);
+        } else {
+          peg = L.marker(ll,{icon:pegIcon,interactive:false,keyboard:false,zIndexOffset:1000}).addTo(map);
+          var el = peg.getElement();
+          P = {sv:el.querySelector('svg'),sh:el.querySelector('.pgsh'),up:el.querySelector('.up'),al:el.querySelector('.al'),ar:el.querySelector('.ar'),ll:el.querySelector('.ll'),lr:el.querySelector('.lr')};
+          runPeg(ll,ll,46,500,true,done);
+        }
+      }catch(err){}
+    });
+  }
+  function copyText(t){
+    function ok(){ toast('已複製座標：' + t); }
+    function fb(){
+      var a = document.createElement('textarea'); a.value = t; a.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(a); a.select();
+      try{ document.execCommand('copy'); ok(); }catch(err){ toast('複製失敗，請手動複製'); }
+      a.remove();
+    }
+    if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(ok,fb); else fb();
+  }
+  rd.onclick = function(){ if(pegTxt) copyText(pegTxt); else toast('請先點擊地圖放置小人'); };
+
+  // ── 提示、定位、關於 ──
+  var tt = document.getElementById('toast'), tmr, me;
+  function toast(m){ tt.textContent = m; tt.classList.add('show'); clearTimeout(tmr); tmr = setTimeout(function(){ tt.classList.remove('show'); },2600); }
+  document.getElementById('loc').onclick = function(){
+    if(!navigator.geolocation){ toast('此瀏覽器不支援定位'); return; }
+    toast('定位中…');
+    navigator.geolocation.getCurrentPosition(function(p){
+      var ll = L.latLng(p.coords.latitude,p.coords.longitude);
+      if(!bounds.contains(ll)){ toast('目前位置不在北北基桃範圍內'); return; }
+      if(me) me.setLatLng(ll); else me = L.marker(ll,{icon:L.divIcon({className:'me',html:'<i></i>',iconSize:[16,16]}),interactive:false}).addTo(map);
+      map.flyTo(ll,15);
+    },function(){ toast('無法取得位置，請允許定位權限'); },{enableHighAccuracy:true,timeout:10000});
+  };
+  var about = document.getElementById('about');
+  document.getElementById('inf').onclick = function(){ about.classList.add('show'); };
+  about.addEventListener('click',function(e){ if(e.target === about || e.target.className === 'x') about.classList.remove('show'); });
+  document.addEventListener('keydown',function(e){ if(e.key === 'Escape') about.classList.remove('show'); });
+
+  // ── 動畫圖示（26×34，白底橘線，座標點在底部中心）；點擊顯示說明 ──
+  var WT = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M12.1 13H13.9L14.7 33H11.3Z" fill="#fff" stroke="#E05216" stroke-width=".6" stroke-linejoin="round"/>'
+    + '<g class="rot" fill="#fff" stroke="#E05216" stroke-width=".6" stroke-linejoin="round"><path d="M13 12L12 2.6Q13 .9 14 2.6Z"/><path d="M13 12L12 2.6Q13 .9 14 2.6Z" transform="rotate(120 13 12)"/><path d="M13 12L12 2.6Q13 .9 14 2.6Z" transform="rotate(240 13 12)"/><circle cx="13" cy="12" r="1.5" fill="#E05216"/></g></svg>'
+    + '<i class="hr" style="--dx:-7px">♥</i><i class="hr" style="--dx:6px;animation-delay:.8s">♥</i><i class="hr" style="--dx:-1px;animation-delay:1.6s">♥</i>';
+  var OR = '#E05216', SK = ' fill="#fff" stroke="' + OR + '" stroke-width=".6" stroke-linejoin="round"';
+  // 起飛的螺旋槳飛機（螺旋槳旋轉）
+  var PLANE = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M3 32.5H23" fill="none" stroke="' + OR + '" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 2.2"/>'
+    + '<g transform="translate(0,1) rotate(-24 13 17)"><path d="M3.4 15.8L1.8 10.8L7 15Z"' + SK + '/>'
+    + '<path d="M4 15.6L17 14.6Q21.6 14.8 22 17Q21.6 19.2 17 19.4L4 18.4Z"' + SK + '/>'
+    + '<path d="M9.5 18L6.4 24.4H10.4L15 18.6Z"' + SK + '/>'
+    + '<ellipse cx="15.2" cy="16.3" rx="2" ry="1.1" fill="' + OR + '"/>'
+    + '<ellipse cx="22.2" cy="17" rx="2.4" ry="4.8" fill="' + OR + '" opacity=".22"/>'
+    + '<path class="pr" d="M22.4 12.4V21.6" fill="none" stroke="' + OR + '" stroke-width="1.3" stroke-linecap="round"/>'
+    + '<circle cx="22.2" cy="17" r="1.1" fill="' + OR + '"/></g></svg>';
+  // 中華民國10元硬幣（旋轉）
+  var COIN = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M12.1 24.5H13.9L14.7 33H11.3Z"' + SK + '/>'
+    + '<g class="fb cf"><circle cx="13" cy="14" r="10.5"' + SK + '/><circle cx="13" cy="14" r="8.2" fill="none" stroke="' + OR + '" stroke-width=".4"/>'
+    + '<text x="13" y="17.3" text-anchor="middle" font-size="9.5" font-weight="700" font-family="sans-serif" fill="' + OR + '">10</text></g>'
+    + '<g class="fb cb"><circle cx="13" cy="14" r="10.5"' + SK + '/><circle cx="13" cy="14" r="8.2" fill="none" stroke="' + OR + '" stroke-width=".4"/>'
+    + '<text x="13" y="17.3" text-anchor="middle" font-size="9.5" font-weight="700" font-family="sans-serif" fill="' + OR + '">元</text></g></svg>';
+  // 山（大屯山）：山頭有雲飄移
+  var CLOUD = 'M1 6.5Q0 4 2.6 3.6Q3.4 1.2 6 2Q8.4 .8 9.4 3.4Q11.4 3.8 10.6 6.5Z';
+  var MTN = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M1.5 32.5L8.5 18L11.5 22L16.5 9L24.5 32.5Z"' + SK + '/>'
+    + '<path d="M16.5 9L24.5 32.5H17.5L15 22Z" fill="' + OR + '" fill-opacity=".22"/>'
+    + '<g transform="translate(5,6)"><g class="cl"><path d="' + CLOUD + '"' + SK + '/></g></g>'
+    + '<g transform="translate(10,13) scale(.8)"><g class="cl" style="animation-delay:-2.5s"><path d="' + CLOUD + '"' + SK + '/></g></g></svg>';
+  // 女王頭（野柳）：風吹過
+  var QUEEN = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M9.5 33L10.5 23Q7 20.5 6.8 15Q6.5 9.5 11 7.8Q10 4 13 3.2Q16.5 3 16.8 6.5Q20.5 8 19.6 12.5L21.6 14.8L19.4 15.8Q19.6 18.5 17 20.3Q15.6 21.3 15.8 23L17.6 33Z"' + SK + '/>'
+    + '<path d="M8.2 15Q8.6 10.6 12.4 9M11.5 26H15.1M11 29.5H16" fill="none" stroke="' + OR + '" stroke-width=".5" stroke-linecap="round"/>'
+    + '<circle cx="17.3" cy="12.2" r=".7" fill="' + OR + '"/>'
+    + '<g fill="none" stroke="' + OR + '" stroke-width=".8" stroke-linecap="round">'
+    + '<path class="wd" d="M0 9Q3 7.4 6 9T12 9" transform="translate(0,0)"/>'
+    + '<path class="wd" style="animation-delay:-.6s" d="M0 16Q3 14.4 6 16T12 16"/>'
+    + '<path class="wd" style="animation-delay:-1.2s" d="M0 23Q3 21.4 6 23T12 23"/></g></svg>';
+  // 傾斜45度的香菸（菸頭冒煙）
+  var CIG = '<svg viewBox="0 0 26 34" width="26" height="34"><g transform="translate(0,3) rotate(-45 13 20)">'
+    + '<rect x="1.5" y="17.2" width="21" height="5.2" rx="1.2"' + SK + '/>'
+    + '<rect x="1.5" y="17.2" width="7" height="5.2" rx="1.2" fill="' + OR + '"/><path d="M8.5 17.2V22.4" stroke="#fff" stroke-width=".6"/>'
+    + '<rect x="19.5" y="17.2" width="3" height="5.2" rx="1.2" fill="' + OR + '"/></g>'
+    + '<circle class="sm" cx="19.6" cy="16" r="1.6"' + SK + ' style="stroke-width:.4"/>'
+    + '<circle class="sm" cx="19.6" cy="16" r="1.6"' + SK + ' style="stroke-width:.4;--sx:-3px;animation-delay:-.8s"/>'
+    + '<circle class="sm" cx="19.6" cy="16" r="1.6"' + SK + ' style="stroke-width:.4;--sx:5px;animation-delay:-1.6s"/></svg>';
+  // 公寓（有聲音傳出）
+  var WIN = '', wr, wc;
+  for(wr = 0; wr < 3; wr++) for(wc = 0; wc < 3; wc++){
+    var hot = (wr === 1 && wc === 2);
+    WIN += '<rect x="' + (4.7 + wc*4) + '" y="' + (11 + wr*5.2) + '" width="2.8" height="3" fill="' + OR + '" fill-opacity="' + (hot ? 1 : .5) + '"/>';
+  }
+  var APT = '<svg viewBox="0 0 26 34" width="26" height="34"><rect x="2.5" y="8" width="14" height="25"' + SK + '/>'
+    + '<path d="M1.5 8H17.5" stroke="' + OR + '" stroke-width="1.2" stroke-linecap="round"/>' + WIN
+    + '<rect x="7.7" y="27" width="3.6" height="6" fill="' + OR + '"/>'
+    + '<g fill="none" stroke="' + OR + '" stroke-width=".9" stroke-linecap="round">'
+    + '<path class="wv" d="M18.2 15Q20 17.5 18.2 20"/><path class="wv" style="animation-delay:.25s" d="M20.6 13Q23.4 17.5 20.6 22"/>'
+    + '<path class="wv" style="animation-delay:.5s" d="M23 11Q26.8 17.5 23 24"/></g></svg>';
+
+  function mkIc(lat,lng,svg,tx,cls){
+    L.marker([lat,lng],{icon:L.divIcon({className:'ic ' + (cls || ''),html:svg,iconSize:[26,34],iconAnchor:[13,33]}),keyboard:false,zIndexOffset:500})
+      .addTo(map).bindPopup(tx,{className:'tip',closeButton:false,autoPan:false,offset:[14,-26]});
+  }
+  mkIc(25.07105,121.11906,WT,'純寶的草漯沙丘','wt');
+  mkIc(25.06831,121.37010,PLANE,'樹林口通訊站');
+  mkIc(25.05434,121.24200,PLANE,'空軍桃園基地');
+  mkIc(25.15542,121.51706,COIN,'彌陀山→中正山');
+  mkIc(25.17637,121.52112,MTN,'大屯山');
+  mkIc(25.20939,121.69327,QUEEN,'野柳女王頭');
+  mkIc(25.04358,121.56198,CIG,'松山菸廠');
+  mkIc(25.03001,121.50583,APT,'南機場國民住宅');
+
+  // ── 網址記錄狀態 ──
+  var SL = ['s64','s04','sg'].map(function(i){ return document.getElementById(i); });
+  function writeHash(){
+    try{ var c = map.getCenter(); history.replaceState(null,'','#'+map.getZoom()+'/'+c.lat.toFixed(4)+'/'+c.lng.toFixed(4)+'/'+SL.map(function(e){ return e.value; }).join('-')); }catch(e){}
+  }
+  map.on('moveend',writeHash); SL.forEach(function(e){ e.addEventListener('change',writeHash); });
+
+  // 開場：由遠處飛入北北基桃；若網址帶有狀態則直接還原
+  var m = location.hash.match(/^#([\d.]+)\/([\d.]+)\/([\d.]+)\/(\d+)-(\d+)-(\d+)$/);
+  if(m){
+    map.setView([+m[2],+m[3]],+m[1],{animate:false});
+    SL.forEach(function(el,i){ el.value = m[4+i]; el.dispatchEvent(new Event('input')); });
+  } else if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
+    map.setView(bounds.getNorthEast(),11,{animate:false});
+    setTimeout(function(){ map.panTo(bounds.getCenter(),{duration:2.4,easeLinearity:.2}); },400);
+  }
 
   // 視窗尺寸改變（旋轉手機等）時重新計算
   window.addEventListener('resize',function(){
