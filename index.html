@@ -19,9 +19,10 @@ body{font-size:var(--fs);display:flex;flex-direction:column;font-family:"Noto Sa
 header{position:relative;background:var(--orange);color:#fff;padding:5px 16px 5px 14px}
 #left{position:absolute;z-index:1000;left:12px;top:12px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;max-width:calc(100% - 80px);pointer-events:none}
 header .inner{position:relative;display:flex;align-items:center;gap:12px}
-header .logo{flex:0 0 auto;width:44px;height:44px}
-header h1{margin:0;font-size:19.2px;letter-spacing:.06em;line-height:1.2;font-weight:900}
-header p{white-space:nowrap;margin:3px 0 0;font-size:var(--fs);opacity:.95}
+header .logo{flex:0 0 auto;width:80px;height:47px;margin:-4px 0}
+header .ttl{flex:1 1 0;min-width:0}
+header h1{width:max-content;margin:0;font-size:calc(19.2px*var(--hs,1));letter-spacing:.06em;line-height:1.2;font-weight:900}
+header p{width:max-content;white-space:nowrap;margin:3px 0 0;font-size:calc(var(--fs)*var(--hs,1));opacity:.95}
 
 #stage{position:relative;flex:1 1 auto;min-height:0}
 #map{position:absolute;inset:0;background:#d8d2c8}
@@ -49,16 +50,17 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
 #zoom button{width:32px;height:32px;border:none;border-radius:6px;background:var(--orange);color:#fff;font-size:17px;font-weight:700;line-height:1;padding:0;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 #zoom button:active{background:var(--orange-dark)}
 
-footer{font-size:var(--fs);position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.75);border-top:3px solid var(--orange);padding:6px 14px;padding-bottom:max(6px,env(safe-area-inset-bottom));line-height:1.5;color:#5b4d41;z-index:1000}
-footer b{color:var(--orange-dark);font-weight:600}
+footer{font-size:calc(var(--fs)*.92);position:fixed;left:0;right:0;bottom:0;overflow:hidden;background:var(--orange);text-align:center;letter-spacing:.08em;padding:7px 14px;padding-bottom:max(7px,env(safe-area-inset-bottom));line-height:1.5;color:#fff;box-shadow:0 -2px 8px rgba(0,0,0,.28);z-index:1000}
+footer b{color:#fff;opacity:.8;font-weight:600;margin-right:.3em}
+footer::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.3) 50%,transparent 60%);transform:translateX(-100%);animation:sh 7s 4s ease-in-out infinite}
 
 #zoom button.txt{font-size:12px;font-weight:400;line-height:1.1}
 #zoom button.on{background:#fff;color:var(--orange-dark);outline:2px solid var(--orange)}
 .pt i{display:block;width:1.5px;height:1.5px;margin:2.25px;border-radius:50%;background:#E05216;box-shadow:0 0 2.6px 1.3px #E05216,0 0 6.5px 2.6px rgba(224,82,22,.55);animation:tw 3s ease-in-out infinite}
 @keyframes tw{0%,100%{opacity:.3}50%{opacity:1}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
-footer a.ig{display:inline-flex;vertical-align:-3px;margin-left:4px;color:var(--orange-dark)}
-footer a.ig img{width:16px;height:16px;display:block;border-radius:50%}
+footer a.ig{display:inline-flex;vertical-align:-3px;margin-left:6px}
+footer a.ig img{width:16px;height:16px;display:block;border-radius:50%;box-shadow:0 0 0 1.5px #fff}
 body{padding-top:env(safe-area-inset-top)}
 
 /* 十字游標（電腦）：按下時縮小 1/2；手機以 .cx 顯示每個觸控點 */
@@ -99,7 +101,6 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
 .pgsh{position:absolute;left:5px;top:29.5px;width:14px;height:5px;border-radius:50%;background:rgba(0,0,0,.45);filter:blur(1px)}
 .pegsvg{display:block;transform-origin:50% 100%}
 .rd{background:var(--panel);padding:1px 8px;border-radius:6px;font-variant-numeric:tabular-nums;color:var(--ink)}
-.leaflet-control-scale-line{background:var(--panel)}
 .me i{display:block;width:12px;height:12px;margin:2px;border-radius:50%;background:#1a73e8;border:2px solid #fff;animation:ping 1.6s infinite}
 @keyframes ping{from{box-shadow:0 0 0 0 rgba(26,115,232,.6)}to{box-shadow:0 0 0 18px rgba(26,115,232,0)}}
 #toast{position:fixed;left:50%;bottom:calc(var(--fh,60px) + 14px);z-index:1500;transform:translate(-50%,12px);background:rgba(43,33,24,.9);color:#fff;padding:6px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}
@@ -112,6 +113,9 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
 #about p{margin:0 0 8px}
 #about ul{margin:0 0 4px;padding-left:1.4em}
 #about li{margin:0 0 4px}
+#about hr{border:none;border-top:1px solid #eadfd2;margin:10px 0}
+#about .src{font-size:calc(var(--fs)*.88);line-height:1.6;color:#5b4d41;margin:0 0 4px}
+#about .src b{color:var(--orange-dark);font-weight:600}
 #about a{color:var(--orange-dark);font-weight:600}
 #about .x{position:absolute;right:8px;top:4px;border:none;background:none;font-size:24px;color:#7a6a5c;cursor:pointer}
 
@@ -123,7 +127,10 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
 /* pop up：字級 0.75 倍、留白縮小、框的左下角貼近錨點（小人頭部／圖示的右上方），不顯示小尖角 */
 .tip.leaflet-popup{margin-bottom:0}
 .tip .leaflet-popup-tip-container{display:none}
-.tip .leaflet-popup-content-wrapper{border-radius:6px;padding:0;transform:translateX(50%)}
+.tip .leaflet-popup-content-wrapper{border-radius:6px;padding:0;translate:50% 0;transform-origin:0 100%;animation:tipin .28s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes tipin{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+.tip.tipout .leaflet-popup-content-wrapper{animation:tipout .2s ease-in both}
+@keyframes tipout{to{opacity:0;transform:scale(.3)}}
 .tip .leaflet-popup-content{margin:2px 6px;font-size:calc(var(--fs)*.75);font-weight:600;line-height:1.3;white-space:nowrap;color:var(--orange-dark)}
 
 /* 地圖動畫圖示（共用：26×34、白底橘線，底部中心為座標點） */
@@ -142,13 +149,33 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
 @keyframes wnd{0%{transform:translateX(-8px);opacity:0}20%{opacity:.95}80%{opacity:.95}100%{transform:translateX(22px);opacity:0}}
 .ic .sm{transform-box:fill-box;transform-origin:center;animation:smk 2.4s ease-out infinite}
 @keyframes smk{0%{transform:translate(0,0) scale(.4);opacity:0}15%{opacity:.9}100%{transform:translate(var(--sx,4px),-15px) scale(1.5);opacity:0}}
+/* 10元硬幣：真 3D 旋轉，疊層呈現厚度 */
+.coinw{position:relative;width:26px;height:34px;perspective:150px}
+.coin3d{position:absolute;left:2.5px;top:8.5px;width:21px;height:21px;transform-style:preserve-3d;animation:cspin 2.2s linear infinite}
+.coin3d i{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:50%;background:#E05216}
+.coin3d i.e2{background:#c4440f}
+.coin3d i.fc{background:#fff;border:.8px solid #E05216;box-shadow:inset 0 0 0 2.2px #fff,inset 0 0 0 2.8px #E05216;backface-visibility:hidden;font:700 9.5px/19.4px sans-serif;color:#E05216;text-align:center;font-style:normal}
+.coin3d i.fc::after{content:"10"}
+.coinsh{position:absolute;left:5px;top:30.5px;width:16px;height:3.4px;border-radius:50%;background:rgba(224,82,22,.28)}
+@keyframes cspin{to{transform:rotateY(360deg)}}
+/* 三合院被怪手拆除 */
+.ic .arm{transform-origin:20.5px 27px;animation:arm 1.6s ease-in-out infinite}
+@keyframes arm{0%,100%{transform:rotate(-9deg)}45%{transform:rotate(7deg)}55%{transform:rotate(7deg)}}
+.ic .rf{transform-origin:15.3px 26px;animation:rfall 3.2s ease-in infinite}
+@keyframes rfall{0%,28%{transform:none;opacity:1}45%{transform:translate(.4px,.8px) rotate(4deg)}70%{transform:translate(1.8px,5px) rotate(24deg);opacity:.9}84%{transform:translate(2.6px,9px) rotate(40deg);opacity:0}92%{transform:none;opacity:0}100%{transform:none;opacity:1}}
+.ic .dbr{transform-box:fill-box;transform-origin:center;animation:dbr 1.6s ease-out infinite}
+@keyframes dbr{0%,40%{transform:translate(0,0) scale(.3);opacity:0}55%{opacity:.95}100%{transform:translate(var(--bx,-3px),-9px) scale(1.5);opacity:0}}
+/* 輔仁中美堂：十字架漂浮 */
+.ic .cro{animation:crf 2.6s ease-in-out infinite}
+@keyframes crf{0%,100%{transform:translateY(1.4px)}50%{transform:translateY(-1.4px)}}
+.ic .glo{transform-box:fill-box;transform-origin:center;animation:glo 2.6s ease-in-out infinite}
+@keyframes glo{0%,100%{opacity:.1;transform:scale(.85)}50%{opacity:.4;transform:scale(1.15)}}
 .ic .wv{animation:wvv 1.5s ease-in-out infinite}
 @keyframes wvv{0%,100%{opacity:.12}35%{opacity:1}}
 
 /* Mobile: panel becomes bottom sheet */
 @media (max-width:640px){
   #left{left:8px;right:8px;top:8px;max-width:none}
-  header .logo{width:32px;height:32px}
   header .inner{gap:8px}
   #panel{width:100%}
   #zoom{right:8px;top:auto;bottom:calc(var(--fh,60px) + 8px)}
@@ -169,7 +196,7 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
   <div id="panel">
 <header>
   <div class="inner">
-    <svg class="logo" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="衛星看臺灣">
+    <svg class="logo" viewBox="0 17 64 38" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="衛星看臺灣">
       <defs><filter id="gl" x="-60%" y="-30%" width="220%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
       <path d="M35.0 19.0L38.5 20.7L39.2 22.0L37.8 23.5L37.6 26.0L36.0 30.5L35.7 32.5L34.6 36.5L33.5 41.0L31.6 44.5L29.5 47.5L28.8 52.7L27.7 51.5L27.1 49.0L26.3 48.0L23.6 45.8L22.4 42.5L21.9 39.5L22.0 35.5L23.6 32.0L25.4 29.0L27.4 26.0L29.5 24.0L31.4 21.5L33.7 20.0Z" fill="#fff" stroke="none" filter="url(#gl)"><animate attributeName="opacity" values=".15;.95;.15" dur="2.4s" repeatCount="indefinite"/></path>
       <path d="M35.0 19.0L38.5 20.7L39.2 22.0L37.8 23.5L37.6 26.0L36.0 30.5L35.7 32.5L34.6 36.5L33.5 41.0L31.6 44.5L29.5 47.5L28.8 52.7L27.7 51.5L27.1 49.0L26.3 48.0L23.6 45.8L22.4 42.5L21.9 39.5L22.0 35.5L23.6 32.0L25.4 29.0L27.4 26.0L29.5 24.0L31.4 21.5L33.7 20.0Z" fill="#fff" stroke-width="1.2"><animate attributeName="fill-opacity" values=".78;1;.78" dur="2.4s" repeatCount="indefinite"/></path>
@@ -187,8 +214,17 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
           <animateMotion dur="7s" repeatCount="indefinite" path="M1 36a29 9 0 1 0 58 0a29 9 0 1 0 -58 0"/>
         </g>
       </g>
+          <g transform="rotate(30 30 36)">
+        <ellipse cx="30" cy="36" rx="29" ry="9" stroke-width="1.4" stroke-dasharray="2 3"/>
+        <g>
+          <rect x="-3.5" y="-3" width="7" height="6" rx="1" fill="#fff" stroke-width="1"/>
+          <rect x="-11" y="-2.2" width="6" height="4.4" fill="#fff" fill-opacity=".35" stroke-width="1"/>
+          <rect x="5" y="-2.2" width="6" height="4.4" fill="#fff" fill-opacity=".35" stroke-width="1"/>
+          <animateMotion dur="9s" begin="-3s" repeatCount="indefinite" path="M59 36a29 9 0 1 1 -58 0a29 9 0 1 1 58 0"/>
+        </g>
+      </g>
     </svg>
-    <div>
+    <div class="ttl">
       <h1>1964北北基桃</h1>
       <p>美軍日冕計畫中，臺灣第一批高解析度衛星影像</p>
     </div>
@@ -220,7 +256,7 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     <button id="ovl" class="txt" aria-pressed="false" aria-label="套疊當今地標與路網" title="套疊當今地標與路網">地標<br>路網</button>
     <button id="mus" aria-pressed="false" aria-label="背景音樂" title="背景音樂">♫</button>
     <button id="inf" aria-label="關於這組影像" title="關於這組影像">ⓘ</button>
-    <audio id="bgm" loop preload="none" src="https://commons.wikimedia.org/wiki/Special:FilePath/Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg"></audio>
+    <audio id="bgm" loop preload="auto" autoplay src="https://commons.wikimedia.org/wiki/Special:FilePath/Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg"></audio>
   </div>
 
 </div>
@@ -235,12 +271,13 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
   <ul>
     <li><a href="https://geodamma.github.io/QuemoyLandscape1970s/" target="_blank" rel="noopener">美軍偵照衛星鏡頭下1970s金門築城要塞化的地景巔峰</a></li>
     <li><a href="https://geodamma.github.io/MatsuLandscape1968/" target="_blank" rel="noopener">俯瞰馬祖：1968</a></li>
-  </ul></div></div>
+  </ul>
+  <hr>
+  <p class="src"><b>圖資來源：</b>U.S. Geological Survey, 中央研究院人社中心GIS專題中心, Google</p>
+  <p class="src"><b>背景音樂：</b>Erik Satie〈Gymnopédie No. 1〉，取自Wikimedia Commons</p></div></div>
 
 <footer>
   <div><b>圖資處理：</b>許純鎰<a class="ig" href="https://www.instagram.com/geodamma/" target="_blank" rel="noopener" aria-label="Instagram @geodamma" title="Instagram @geodamma"><img src="data:image/png;base64,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" alt="" width="16" height="16"></a></div>
-  <div><b>圖資來源：</b>U.S. Geological Survey, 中央研究院人社中心GIS專題中心, Google</div>
-  <div><b>背景音樂：</b>Erik Satie〈Gymnopédie No. 1〉，取自Wikimedia Commons</div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -327,18 +364,25 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     L.marker([+a[1],+('121.'+a[0])],{icon:icon,interactive:false,keyboard:false}).addTo(map);
   });
 
-  // 背景音樂（瀏覽器通常禁止自動播放：首次點擊畫面時才會開始，可用右側 ♫ 鈕開關）
+  // 背景音樂：預設開啟；若瀏覽器禁止自動播放，則在第一次點擊／觸控畫面時開始，可用右側 ♫ 鈕開關
   var bgm = document.getElementById('bgm'), mus = document.getElementById('mus'), userOff = false;
   bgm.volume = 0.4;
   function setMus(on){ mus.classList.toggle('on',on); mus.setAttribute('aria-pressed',on); }
+  function tryPlay(){
+    if(userOff || !bgm.paused) return;
+    var p = bgm.play(); if(p && p.then) p.then(function(){ setMus(true); unhook(); }).catch(function(){});
+  }
+  var unlockEv = ['pointerdown','touchend','click','keydown'];
+  function onFirst(e){ if(e.target && e.target.closest && e.target.closest('#mus')) return; tryPlay(); }
+  function unhook(){ unlockEv.forEach(function(n){ document.removeEventListener(n,onFirst,true); }); }
+  unlockEv.forEach(function(n){ document.addEventListener(n,onFirst,true); });
+  bgm.addEventListener('play',function(){ setMus(true); });
+  bgm.addEventListener('pause',function(){ setMus(false); });
+  tryPlay();
   mus.onclick = function(){
-    if(bgm.paused){ userOff=false; bgm.play().then(function(){setMus(true);}).catch(function(){}); }
-    else { userOff=true; bgm.pause(); setMus(false); }
+    if(bgm.paused){ userOff = false; tryPlay(); }
+    else { userOff = true; bgm.pause(); setMus(false); }
   };
-  document.addEventListener('pointerdown',function(e){
-    if(e.target.closest && e.target.closest('#mus')) return;
-    if(!userOff && bgm.paused) bgm.play().then(function(){setMus(true);}).catch(function(){});
-  },{once:true});
 
   // 透明度滑桿
   function bind(id, vid, layer){
@@ -357,22 +401,41 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
   setFh(); window.addEventListener('resize', setFh);
 
   // 十字游標：滑鼠按下時游標縮小；觸控時在每個觸控點顯示十字（支援多點）
-  var stage = document.getElementById('stage'), xh = document.getElementById('xh'), mc = map.getContainer(), cross = {}, tch = {};   // tch：目前按住的觸控點 pointerId → clientX
+  // 小人只在「單獨點擊」時動作：拖曳、縮放（捏合、雙擊）都不觸發；多點同時點擊時以最左側的觸控點為準
+  var stage = document.getElementById('stage'), xh = document.getElementById('xh'), mc = map.getContainer(), cross = {}, gs = null, tapTmr, lastTap = null;
   function place(el,e){ var r = stage.getBoundingClientRect(); el.style.left = (e.clientX - r.left) + 'px'; el.style.top = (e.clientY - r.top) + 'px'; }
   mc.addEventListener('pointerdown',function(e){
     if(e.target.closest && e.target.closest('.leaflet-control,.wt,.ic')) return;
-    if(e.pointerType === 'mouse'){ if(e.button === 0){ mc.classList.add('pressed'); placePeg(e); } return; }
-    tch[e.pointerId] = e.clientX;   // 同時有多個觸控點時，小人與 pop up 以最左側的觸控點為準
-    if(Object.keys(tch).every(function(k){ return +k === e.pointerId || tch[k] >= e.clientX; })) placePeg(e);
+    if(e.pointerType === 'mouse'){ if(e.button !== 0) return; mc.classList.add('pressed'); }
+    if(!gs) gs = {act:{},c:[],moved:false};
+    gs.act[e.pointerId] = 1; gs.c.push({id:e.pointerId,x:e.clientX,y:e.clientY});
+    if(e.pointerType === 'mouse') return;
     var el = document.createElement('div'); el.className = 'cx'; place(el,e); xh.appendChild(el); cross[e.pointerId] = el;
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('press'); }); });
   });
-  mc.addEventListener('pointermove',function(e){ if(e.pointerId in tch) tch[e.pointerId] = e.clientX; var el = cross[e.pointerId]; if(el) place(el,e); });
+  window.addEventListener('pointermove',function(e){
+    var el = cross[e.pointerId]; if(el) place(el,e);
+    if(gs && gs.act[e.pointerId]) gs.c.forEach(function(c){ if(c.id === e.pointerId && Math.hypot(e.clientX-c.x,e.clientY-c.y) > 8) gs.moved = true; });
+  });
+  function tapAt(c){
+    var now = performance.now();
+    if(lastTap && now-lastTap.t < 300 && Math.hypot(c.x-lastTap.x,c.y-lastTap.y) < 40){ clearTimeout(tapTmr); lastTap = null; return; }   // 雙擊放大：取消
+    lastTap = {t:now,x:c.x,y:c.y};
+    clearTimeout(tapTmr); tapTmr = setTimeout(function(){ placePeg({clientX:c.x,clientY:c.y}); },280);
+  }
   function endPtr(e){
-    if(e.pointerType === 'mouse'){ mc.classList.remove('pressed'); return; }
-    delete tch[e.pointerId];
-    var el = cross[e.pointerId]; if(!el) return;
-    delete cross[e.pointerId]; el.classList.add('out'); setTimeout(function(){ el.remove(); },200);
+    if(e.pointerType === 'mouse') mc.classList.remove('pressed');
+    else {
+      var el = cross[e.pointerId];
+      if(el){ delete cross[e.pointerId]; el.classList.add('out'); setTimeout(function(){ el.remove(); },200); }
+    }
+    if(!gs || !gs.act[e.pointerId]) return;
+    if(e.type === 'pointercancel') gs.moved = true;
+    delete gs.act[e.pointerId];
+    if(Object.keys(gs.act).length) return;
+    var g = gs; gs = null;
+    if(g.moved) return;
+    tapAt(g.c.reduce(function(a,b){ return b.x < a.x ? b : a; }));
   }
   window.addEventListener('pointerup',endPtr); window.addEventListener('pointercancel',endPtr);
 
@@ -387,7 +450,6 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     l.on('loading',function(){ st[i]=1; ld.classList.add('on'); });
     l.on('load',function(){ delete st[i]; if(!Object.keys(st).length) ld.classList.remove('on'); });
   });
-  L.control.scale({position:'bottomleft',imperial:false,maxWidth:110}).addTo(map);
   var rdc = L.control({position:'bottomleft'}), rd;
   rdc.onAdd = function(){ rd = L.DomUtil.create('div','rd'); return rd; }; rdc.addTo(map);
   rd.textContent = '點擊地圖放置小人，即可取得座標';
@@ -423,10 +485,11 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     + '<g class="up"><path d="M7.4 11.6Q7.4 10 9 10H15Q16.6 10 16.6 11.6V21.8H7.4Z"/>'
     + '<g class="al"><rect x="4.4" y="10.8" width="2.6" height="9" rx="1.2"/></g><g class="ar"><rect x="17" y="10.8" width="2.6" height="9" rx="1.2"/></g>'
     + '<circle cx="12" cy="5.3" r="3.7"/></g></g></svg>';
+  map.on('zoomstart movestart',function(){ clearTimeout(tapTmr); });
   var pegIcon = L.divIcon({className:'peg',html:PEG,iconSize:[24,34],iconAnchor:[12,32]}), peg, pegTxt = '', pegAnim, P = {}, popTmr, pend;
-  function setPose(h,H,sq,tk,th){   // h 離地高度；sq 蹲伏量；tk 收腳量；th 手臂上舉角度
+  function setPose(h,H,sq,tk,th,rot){   // h 離地高度；sq 蹲伏量；tk 收腳量；th 手臂上舉角度
     var k = Math.min(1,h/(H||40)), s = (1-.25*sq-.55*tk).toFixed(3), dx = 1.4*sq+1.2*tk;
-    P.sv.style.transform = 'translateY(' + (-h) + 'px)';
+    P.sv.style.transform = 'translateY(' + (-h) + 'px)' + (rot ? ' rotate(' + rot.toFixed(1) + 'deg)' : '');
     P.sh.style.transform = 'scale(' + (1-.45*k) + ')'; P.sh.style.opacity = 1-.55*k;
     P.up.setAttribute('transform','translate(0,' + (2.1*sq).toFixed(2) + ')');
     P.al.setAttribute('transform','rotate(' + th.toFixed(1) + ' 5.7 11.6)');
@@ -435,17 +498,27 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     P.lr.setAttribute('transform','translate(' + dx.toFixed(2) + ',0) translate(13.95,21.4) scale(1,' + s + ') translate(-13.95,-21.4)');
   }
   var E3 = function(x){ return 1-Math.pow(1-x,3); }, lp = function(a,b,x){ return a+(b-a)*x; };
-  // 立定跳遠：下蹲蓄力、擺臂起跳 → 空中收腳翱翔（地面位置等速、小人沿拋物線）→ 伸腿落地 → 緩衝後站直
+  // 左右移動：立定跳遠（下蹲蓄力、擺臂起跳 → 空中收腳翱翔 → 伸腿落地 → 緩衝後站直）
+  // 上下移動：體操翻滾（起跳後抱膝，在空中翻轉一圈；往上為後空翻、往下為前空翻）
   function runPeg(from,to,H,dur,drop,done){
     cancelAnimationFrame(pegAnim);
+    var pf = map.latLngToContainerPoint(from), pt = map.latLngToContainerPoint(to), ddx = pt.x-pf.x, ddy = pt.y-pf.y;
+    var vert = !drop && Math.abs(ddy) > Math.abs(ddx), dv = ddy < 0 ? -1 : 1;
+    P.sv.style.transformOrigin = vert ? '50% 55%' : '50% 100%';
     var tc = drop ? 0 : 240, tl = 260, ts = 220, T = tc+dur+tl+ts, t0 = performance.now(), thL = drop ? 130 : 70;
     (function step(n){
-      var el = n-t0, h = 0, sq = 0, tk = 0, th = 0;
+      var el = n-t0, h = 0, sq = 0, tk = 0, th = 0, rot = 0;
       if(el < tc){ var u = E3(el/tc); sq = u; th = 25*u; }
       else if(el < tc+dur){
         var t = (el-tc)/dur;
         peg.setLatLng([lp(from.lat,to.lat,t),lp(from.lng,to.lng,t)]);
         if(drop){ h = H*(1-t)*(1-t); th = 130; }
+        else if(vert){
+          var uu = Math.min(1,Math.max(0,(t-.12)/.76));
+          h = 4*H*t*(1-t); sq = Math.max(0,1-t/.15); rot = dv*360*uu*uu*(3-2*uu);
+          tk = t < .1 ? 0 : t < .2 ? (t-.1)/.1 : t < .8 ? 1 : t < .9 ? (.9-t)/.1 : 0;
+          th = t < .15 ? lp(25,110,E3(t/.15)) : t < .85 ? 110 : lp(110,40,(t-.85)/.15);
+        }
         else {
           h = 4*H*t*(1-t); sq = Math.max(0,1-t/.15);
           tk = t < .2 ? 0 : t < .4 ? (t-.2)/.2 : t < .7 ? 1 : t < .85 ? (.85-t)/.15 : 0;
@@ -456,8 +529,8 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
         if(m < tl){ var u2 = m/tl; sq = E3(Math.min(1,m/100))*(1-.3*u2); th = lp(thL,40,u2); }
         else { var v = (m-tl)/ts; sq = .7*(1-E3(v)); th = 40*(1-E3(v)); }
       }
-      if(el >= T){ peg.setLatLng(to); setPose(0,H,0,0,0); if(done) done(); return; }
-      setPose(h,H,sq,tk,th);
+      if(el >= T){ peg.setLatLng(to); P.sv.style.transformOrigin = '50% 100%'; setPose(0,H,0,0,0,0); if(done) done(); return; }
+      setPose(h,H,sq,tk,th,rot);
       pegAnim = requestAnimationFrame(step);
     })(t0);
   }
@@ -470,11 +543,14 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     pend = requestAnimationFrame(function(){   // 延後處理，不干擾 Leaflet 的拖曳/縮放事件
       try{
         map.closePopup(); clearTimeout(popTmr);
-        var done = function(){    // 落地後顯示行政區（約 2 秒，或下次移動時消失）
+        var done = function(){    // 落地後顯示行政區（1.5 秒，或下次移動時消失）
           var nm = districtAt(ll.lng,ll.lat), tx = (near ? '我在這裡！' : '') + (near && nm ? '<br>' : '') + nm;
           if(!tx) return;
           var pop = L.popup({className:'tip',closeButton:false,autoPan:false,offset:[6,-28]}).setLatLng(ll).setContent(tx).openOn(map);
-          popTmr = setTimeout(function(){ map.closePopup(pop); },2000);
+          popTmr = setTimeout(function(){
+            var pe = pop.getElement(); if(pe) pe.classList.add('tipout');   // 彈出彈入：先播放縮小淡出再關閉
+            popTmr = setTimeout(function(){ map.closePopup(pop); },200);
+          },1500);
         };
         if(peg){
           var from = peg.getLatLng(), d = map.latLngToContainerPoint(from).distanceTo(map.latLngToContainerPoint(ll));
@@ -524,26 +600,18 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     + '<i class="hr" style="--dx:-7px">♥</i><i class="hr" style="--dx:6px;animation-delay:.8s">♥</i><i class="hr" style="--dx:-1px;animation-delay:1.6s">♥</i>';
   var OR = '#E05216', SK = ' fill="#fff" stroke="' + OR + '" stroke-width=".6" stroke-linejoin="round"';
   // 起飛的螺旋槳飛機（螺旋槳旋轉）
-  var PLANE = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M3 32.5H23" fill="none" stroke="' + OR + '" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 2.2"/>'
-    + '<g transform="translate(0,1) rotate(-24 13 17)"><path d="M3.4 15.8L1.8 10.8L7 15Z"' + SK + '/>'
+  var PLANE = '<svg viewBox="0 0 26 34" width="33.8" height="44.2">'
+    + '<g transform="translate(0,5) rotate(-24 13 17)"><path d="M3.4 15.8L1.8 10.8L7 15Z"' + SK + '/>'
     + '<path d="M4 15.6L17 14.6Q21.6 14.8 22 17Q21.6 19.2 17 19.4L4 18.4Z"' + SK + '/>'
     + '<path d="M9.5 18L6.4 24.4H10.4L15 18.6Z"' + SK + '/>'
     + '<ellipse cx="15.2" cy="16.3" rx="2" ry="1.1" fill="' + OR + '"/>'
     + '<ellipse cx="22.2" cy="17" rx="2.4" ry="4.8" fill="' + OR + '" opacity=".22"/>'
     + '<path class="pr" d="M22.4 12.4V21.6" fill="none" stroke="' + OR + '" stroke-width="1.3" stroke-linecap="round"/>'
     + '<circle cx="22.2" cy="17" r="1.1" fill="' + OR + '"/></g></svg>';
-  // 中華民國10元硬幣（旋轉）
-  var COIN = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M12.1 24.5H13.9L14.7 33H11.3Z"' + SK + '/>'
-    + '<g class="fb cf"><circle cx="13" cy="14" r="10.5"' + SK + '/><circle cx="13" cy="14" r="8.2" fill="none" stroke="' + OR + '" stroke-width=".4"/>'
-    + '<text x="13" y="17.3" text-anchor="middle" font-size="9.5" font-weight="700" font-family="sans-serif" fill="' + OR + '">10</text></g>'
-    + '<g class="fb cb"><circle cx="13" cy="14" r="10.5"' + SK + '/><circle cx="13" cy="14" r="8.2" fill="none" stroke="' + OR + '" stroke-width=".4"/>'
-    + '<text x="13" y="17.3" text-anchor="middle" font-size="9.5" font-weight="700" font-family="sans-serif" fill="' + OR + '">元</text></g></svg>';
-  // 山（大屯山）：山頭有雲飄移
-  var CLOUD = 'M1 6.5Q0 4 2.6 3.6Q3.4 1.2 6 2Q8.4 .8 9.4 3.4Q11.4 3.8 10.6 6.5Z';
-  var MTN = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M1.5 32.5L8.5 18L11.5 22L16.5 9L24.5 32.5Z"' + SK + '/>'
-    + '<path d="M16.5 9L24.5 32.5H17.5L15 22Z" fill="' + OR + '" fill-opacity=".22"/>'
-    + '<g transform="translate(5,6)"><g class="cl"><path d="' + CLOUD + '"' + SK + '/></g></g>'
-    + '<g transform="translate(10,13) scale(.8)"><g class="cl" style="animation-delay:-2.5s"><path d="' + CLOUD + '"' + SK + '/></g></g></svg>';
+  // 中華民國10元硬幣：正反面皆為「10」，以疊層呈現厚度並做 3D 旋轉
+  var COIN = '<div class="coinw"><b class="coinsh"></b><div class="coin3d">', zi;
+  for(zi = -1.4; zi <= 1.41; zi += .35) COIN += '<i class="' + (Math.round(zi/.35)%2 ? 'e2' : '') + '" style="transform:translateZ(' + zi.toFixed(2) + 'px)"></i>';
+  COIN += '<i class="fc" style="transform:translateZ(1.6px)"></i><i class="fc" style="transform:rotateY(180deg) translateZ(1.6px)"></i></div></div>';
   // 女王頭（野柳）：風吹過
   var QUEEN = '<svg viewBox="0 0 26 34" width="26" height="34"><path d="M9.5 33L10.5 23Q7 20.5 6.8 15Q6.5 9.5 11 7.8Q10 4 13 3.2Q16.5 3 16.8 6.5Q20.5 8 19.6 12.5L21.6 14.8L19.4 15.8Q19.6 18.5 17 20.3Q15.6 21.3 15.8 23L17.6 33Z"' + SK + '/>'
     + '<path d="M8.2 15Q8.6 10.6 12.4 9M11.5 26H15.1M11 29.5H16" fill="none" stroke="' + OR + '" stroke-width=".5" stroke-linecap="round"/>'
@@ -560,31 +628,55 @@ header::after{content:"";position:absolute;inset:0;pointer-events:none;backgroun
     + '<circle class="sm" cx="19.6" cy="16" r="1.6"' + SK + ' style="stroke-width:.4"/>'
     + '<circle class="sm" cx="19.6" cy="16" r="1.6"' + SK + ' style="stroke-width:.4;--sx:-3px;animation-delay:-.8s"/>'
     + '<circle class="sm" cx="19.6" cy="16" r="1.6"' + SK + ' style="stroke-width:.4;--sx:5px;animation-delay:-1.6s"/></svg>';
-  // 公寓（有聲音傳出）
-  var WIN = '', wr, wc;
-  for(wr = 0; wr < 3; wr++) for(wc = 0; wc < 3; wc++){
-    var hot = (wr === 1 && wc === 2);
-    WIN += '<rect x="' + (4.7 + wc*4) + '" y="' + (11 + wr*5.2) + '" width="2.8" height="3" fill="' + OR + '" fill-opacity="' + (hot ? 1 : .5) + '"/>';
-  }
-  var APT = '<svg viewBox="0 0 26 34" width="26" height="34"><rect x="2.5" y="8" width="14" height="25"' + SK + '/>'
-    + '<path d="M1.5 8H17.5" stroke="' + OR + '" stroke-width="1.2" stroke-linecap="round"/>' + WIN
-    + '<rect x="7.7" y="27" width="3.6" height="6" fill="' + OR + '"/>'
+  // 公寓（兩層樓，有聲音傳出）
+  var WIN = '', wi, wx = [4.2,8.5,12.8];
+  for(wi = 0; wi < 3; wi++) WIN += '<rect x="' + wx[wi] + '" y="15.6" width="3" height="4.2" fill="' + OR + '" fill-opacity="' + (wi === 2 ? 1 : .5) + '"/>';
+  WIN += '<rect x="4.2" y="25.4" width="3" height="4.2" fill="' + OR + '" fill-opacity=".5"/><rect x="12.8" y="25.4" width="3" height="4.2" fill="' + OR + '" fill-opacity=".5"/>';
+  var APT = '<svg viewBox="0 0 26 34" width="26" height="34"><rect x="2.5" y="12" width="14" height="21"' + SK + '/>'
+    + '<path d="M1.5 12H17.5M2.5 22.4H16.5" stroke="' + OR + '" stroke-width="1.1" stroke-linecap="round"/>' + WIN
+    + '<rect x="7.8" y="25.6" width="4.4" height="7.4" fill="' + OR + '"/>'
     + '<g fill="none" stroke="' + OR + '" stroke-width=".9" stroke-linecap="round">'
-    + '<path class="wv" d="M18.2 15Q20 17.5 18.2 20"/><path class="wv" style="animation-delay:.25s" d="M20.6 13Q23.4 17.5 20.6 22"/>'
-    + '<path class="wv" style="animation-delay:.5s" d="M23 11Q26.8 17.5 23 24"/></g></svg>';
+    + '<path class="wv" d="M18.2 15.4Q20 17.7 18.2 20"/><path class="wv" style="animation-delay:.25s" d="M20.6 13.4Q23.4 17.7 20.6 22"/>'
+    + '<path class="wv" style="animation-delay:.5s" d="M23 11.4Q26.8 17.7 23 24"/></g></svg>';
+  // 三合院（怪手拆除中）
+  var SAN = '<svg viewBox="0 0 26 34" width="26" height="34">'
+    + '<rect x="4.5" y="22" width="9" height="11"' + SK + '/><path d="M3 22L9 15.5L15 22Z" fill="' + OR + '" stroke="' + OR + '" stroke-width=".6" stroke-linejoin="round"/>'
+    + '<rect x="7.4" y="26" width="3.2" height="7" fill="' + OR + '" fill-opacity=".55"/>'
+    + '<rect x="1" y="26.5" width="3.5" height="6.5"' + SK + '/><path d="M.2 26.5L2.75 23.5L5.3 26.5Z" fill="' + OR + '" stroke="' + OR + '" stroke-width=".6" stroke-linejoin="round"/>'
+    + '<rect x="13.5" y="26.5" width="3.5" height="6.5"' + SK + '/>'
+    + '<g class="rf"><path d="M12.7 26.5L15.25 23.5L17.8 26.5Z" fill="' + OR + '" stroke="' + OR + '" stroke-width=".6" stroke-linejoin="round"/></g>'
+    + '<rect x="17.6" y="30.6" width="7.6" height="2.6" rx="1.3" fill="' + OR + '"/>'
+    + '<rect x="19" y="25.6" width="4.6" height="5" rx=".8"' + SK + '/><rect x="20.2" y="26.6" width="1.8" height="1.8" fill="' + OR + '" fill-opacity=".6"/>'
+    + '<g class="arm"><path d="M20.5 27L15.6 20.8L12.6 24.2" fill="none" stroke="' + OR + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '<path d="M12.6 24.2L10.8 25.4L13.5 26.3Z" fill="' + OR + '" stroke="' + OR + '" stroke-width=".5" stroke-linejoin="round"/></g>'
+    + '<circle class="dbr" cx="14.2" cy="26" r="1.3"' + SK + ' style="stroke-width:.4"/>'
+    + '<circle class="dbr" cx="14.2" cy="26" r="1.1"' + SK + ' style="stroke-width:.4;--bx:3px;animation-delay:-.5s"/>'
+    + '<circle class="dbr" cx="14.2" cy="26" r=".9"' + SK + ' style="stroke-width:.4;--bx:-6px;animation-delay:-1s"/></svg>';
+  // 輔仁大學中美堂（宮殿式屋頂），上方漂浮十字架
+  var FJU = '<svg viewBox="0 0 26 34" width="26" height="34">'
+    + '<circle class="glo" cx="13" cy="6" r="5.4" fill="' + OR + '"/>'
+    + '<g class="cro"><path d="M13 1.6V10.2M9.6 4.8H16.4" fill="none" stroke="' + OR + '" stroke-width="1.5" stroke-linecap="round"/></g>'
+    + '<path d="M6.6 17.2L9.2 13.8H16.8L19.4 17.2Z" fill="' + OR + '" stroke="' + OR + '" stroke-width=".6" stroke-linejoin="round"/>'
+    + '<rect x="8.2" y="17.2" width="9.6" height="3.6"' + SK + '/>'
+    + '<path d="M1.2 25Q3 24.4 4.6 20.6H21.4Q23 24.4 24.8 25Z" fill="' + OR + '" stroke="' + OR + '" stroke-width=".6" stroke-linejoin="round"/>'
+    + '<rect x="4.6" y="25" width="16.8" height="8"' + SK + '/>'
+    + '<path d="M9 25V33M13 25V33M17 25V33" stroke="' + OR + '" stroke-width=".6"/>'
+    + '<rect x="10" y="28" width="6" height="5" fill="' + OR + '" fill-opacity=".6"/></svg>';
 
-  function mkIc(lat,lng,svg,tx,cls){
-    L.marker([lat,lng],{icon:L.divIcon({className:'ic ' + (cls || ''),html:svg,iconSize:[26,34],iconAnchor:[13,33]}),keyboard:false,zIndexOffset:500})
-      .addTo(map).bindPopup(tx,{className:'tip',closeButton:false,autoPan:false,offset:[14,-26]});
+  function mkIc(lat,lng,html,tx,cls,k){
+    k = k || 1;
+    L.marker([lat,lng],{icon:L.divIcon({className:'ic ' + (cls || ''),html:html,iconSize:[26*k,34*k],iconAnchor:[13*k,33*k]}),keyboard:false,zIndexOffset:500})
+      .addTo(map).bindPopup(tx,{className:'tip',closeButton:false,autoPan:false,offset:[14*k,-26*k]});
   }
   mkIc(25.07105,121.11906,WT,'純寶的草漯沙丘','wt');
-  mkIc(25.06831,121.37010,PLANE,'樹林口通訊站');
-  mkIc(25.05434,121.24200,PLANE,'空軍桃園基地');
+  mkIc(25.06831,121.37010,PLANE,'樹林口通訊站','',1.3);
+  mkIc(25.05434,121.24200,PLANE,'空軍桃園基地','',1.3);
   mkIc(25.15542,121.51706,COIN,'彌陀山→中正山');
-  mkIc(25.17637,121.52112,MTN,'大屯山');
   mkIc(25.20939,121.69327,QUEEN,'野柳女王頭');
   mkIc(25.04358,121.56198,CIG,'松山菸廠');
   mkIc(25.03001,121.50583,APT,'南機場國民住宅');
+  mkIc(25.09890,121.45622,SAN,'洲後村');
+  mkIc(25.03836,121.43140,FJU,'輔仁大學');
 
   // ── 網址記錄狀態 ──
   var SL = ['s64','s04','sg'].map(function(i){ return document.getElementById(i); });
